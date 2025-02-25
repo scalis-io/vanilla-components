@@ -1,6 +1,6 @@
 cubes:
   - name: demographic_info
-    sql_table: "public.\"DemographicInfo\""
+    sql_table: "\"DemographicInfo\""
 
     joins:
       - name: scalis_user
