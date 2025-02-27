@@ -34,3 +34,6 @@ cubes:
       - name: updatedat
         sql: '{CUBE}."updatedAt"'
         type: time
+      - name: departmentname
+        sql: '{CUBE}."departmentName"'
+        type: string

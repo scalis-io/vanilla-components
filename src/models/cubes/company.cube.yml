@@ -44,6 +44,7 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        public: true
       - name: createdat
         sql: '{CUBE}."createdAt"'
         type: time
