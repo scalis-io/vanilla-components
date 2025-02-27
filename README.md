@@ -10,9 +10,12 @@
 ### Working with the project
 
 1. Database tables and relations are defined in `/src/models/cubes`
-2. Every and all queries must join with `companyId` to ensure data isolation between companies. As of 20/02/2025, Embeddable is yet to support features such as `fragments` or `queryRewrite`. To achieve data isolation, following steps are required:
 
-3. employ dynamic SQL generation in `company.cube.yml`:
+2. We have a DMMF to *.cube.yml parser to for automatic cube.yml generation from DMMF. You may find a script in [SCALIS project](https://github.com/scalis-io/scalis-io/blob/main/scripts/generate-cube.ts)
+
+3. Every and all queries must join with `companyId` to ensure data isolation between companies. As of 20/02/2025, Embeddable is yet to support features such as `fragments` or `queryRewrite`. To achieve data isolation, following steps are required:
+
+4. Employ dynamic SQL generation in `company.cube.yml`:
 
 ```sql
 SELECT * FROM "Company"
@@ -23,10 +26,10 @@ SELECT * FROM "Company"
       {% endif %}
 ```
 
-4. Ensure that every query execution joins with `Company` table by adding a filter below to every dataset to be used in https://app.us.embeddable.com/en/workspace/${workspaceId}
+5. Ensure that every query execution joins with `Company` table by adding a filter below to every dataset to be used in https://app.us.embeddable.com/en/workspace/${workspaceId}
    ![plot](./public/DatasetBuilder.png)
 
-5. A `securityContext` is being properly sent on the client/consumer similar to [Scalis frontend integration](https://github.com/scalis-io/scalis-io/blob/main/src/app/company/analytics/%5Bid%5D/page.tsx)
+6. A `securityContext` is being properly sent on the client/consumer similar to [Scalis frontend integration](https://github.com/scalis-io/scalis-io/blob/main/src/app/company/analytics/%5Bid%5D/page.tsx)
 
 ```ts
 const securityContext = { companyId: session?.user.workspace?.currentCompany.id }
