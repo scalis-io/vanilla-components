@@ -1,102 +1,90 @@
 cubes:
   - name: job_listing
-    sql_table: "\"JobListing\""
-    
+    sql_table: '"JobListing"'
     joins:
+      - name: candidate_application
+        sql: '{CUBE}.id = {candidate_application}."jobListingId"'
+        relationship: one_to_many
       - name: requisition
-        sql: "{CUBE}.\"jobRequisitionId\" = {requisition}.id"
+        sql: '{CUBE}."jobRequisitionId" = {requisition}.id'
         relationship: many_to_one
-
+      - name: job_listing_job_pipeline
+        sql: '{CUBE}.id = {job_listing_job_pipeline}."jobListingId"'
+        relationship: one_to_many
+      - name: candidate_application_status
+        sql: '{CUBE}.id = {candidate_application_status}."jobListingId"'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
-      - name: industry
-        sql: industry
-        type: string
-
-      - name: externaltitle
-        sql: "{CUBE}.\"externalTitle\""
-        type: string
-
-      - name: stage
-        sql: stage
-        type: string
-
-      - name: subindustry
-        sql: "{CUBE}.\"subIndustry\""
-        type: string
-
-      - name: companydefault
-        sql: "{CUBE}.\"companyDefault\""
-        type: boolean
-
-      - name: searchinternalmatchingdescription
-        sql: "{CUBE}.\"searchInternalMatchingDescription\""
-        type: string
-
-      - name: acceptingcandidates
-        sql: "{CUBE}.\"acceptingCandidates\""
-        type: boolean
-
-      - name: stateandorcountry
-        sql: "{CUBE}.\"stateAndOrCountry\""
-        type: string
-
       - name: publiclistingid
-        sql: "{CUBE}.\"publicListingId\""
+        sql: '{CUBE}."publicListingId"'
         type: string
-
-      - name: listingtitle
-        sql: "{CUBE}.\"listingTitle\""
-        type: string
-
       - name: externallistingid
-        sql: "{CUBE}.\"externalListingId\""
+        sql: '{CUBE}."externalListingId"'
         type: string
-
-      - name: displaypayonlisting
-        sql: "{CUBE}.\"displayPayOnListing\""
-        type: boolean
-
-      - name: publicdescription
-        sql: "{CUBE}.\"publicDescription\""
+      - name: jobrequisitionid
+        sql: '{CUBE}."jobRequisitionId"'
+        type: number
+      - name: listingtitle
+        sql: '{CUBE}."listingTitle"'
         type: string
-
-      - name: searchpublicdescription
-        sql: "{CUBE}.\"searchPublicDescription\""
+      - name: externaltitle
+        sql: '{CUBE}."externalTitle"'
         type: string
-
-      - name: internalmatchingdescription
-        sql: "{CUBE}.\"internalMatchingDescription\""
-        type: string
-
       - name: workplacetype
-        sql: "{CUBE}.\"workplaceType\""
+        sql: '{CUBE}."workplaceType"'
         type: string
-
-      - name: createdat
-        sql: "{CUBE}.\"createdAt\""
-        type: time
-
-      - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
-        type: time
-
-      - name: deletedat
-        sql: "{CUBE}.\"deletedAt\""
-        type: time
-
+      - name: publicdescription
+        sql: '{CUBE}."publicDescription"'
+        type: string
+      - name: internalmatchingdescription
+        sql: '{CUBE}."internalMatchingDescription"'
+        type: string
+      - name: searchpublicdescription
+        sql: '{CUBE}."searchPublicDescription"'
+        type: string
+      - name: searchinternalmatchingdescription
+        sql: '{CUBE}."searchInternalMatchingDescription"'
+        type: string
       - name: postedat
-        sql: "{CUBE}.\"postedAt\""
+        sql: '{CUBE}."postedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count
-
+      - name: acceptingcandidates
+        sql: '{CUBE}."acceptingCandidates"'
+        type: boolean
+      - name: stage
+        sql: '{CUBE}."stage"'
+        type: string
+      - name: displaypayonlisting
+        sql: '{CUBE}."displayPayOnListing"'
+        type: boolean
+      - name: industry
+        sql: '{CUBE}."industry"'
+        type: string
+      - name: subindustry
+        sql: '{CUBE}."subIndustry"'
+        type: string
+      - name: companydefault
+        sql: '{CUBE}."companyDefault"'
+        type: boolean
+      - name: stateandorcountry
+        sql: '{CUBE}."stateAndOrCountry"'
+        type: string
+      - name: createdat
+        sql: '{CUBE}."createdAt"'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}."updatedAt"'
+        type: time
+      - name: deletedat
+        sql: '{CUBE}."deletedAt"'
+        type: time
       - name: viewcount
-        sql: "{CUBE}.\"viewCount\""
-        type: sum
+        sql: '{CUBE}."viewCount"'
+        type: number

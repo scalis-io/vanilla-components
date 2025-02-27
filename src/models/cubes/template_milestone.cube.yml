@@ -1,16 +1,13 @@
 cubes:
-  - name: template_stage
-    sql_table: '"TemplateStage"'
+  - name: template_milestone
+    sql_table: '"TemplateMilestone"'
     joins:
-      - name: candidate_application
-        sql: '{CUBE}.id = {candidate_application}."templateStageId"'
-        relationship: one_to_many
-      - name: template_milestone
-        sql: '{CUBE}."templateMilestoneId" = {template_milestone}.id'
-        relationship: many_to_one
       - name: template_pipeline
         sql: '{CUBE}."templatePipelineId" = {template_pipeline}.id'
         relationship: many_to_one
+      - name: template_stage
+        sql: '{CUBE}.id = {template_stage}."templateMilestoneId"'
+        relationship: one_to_many
     measures:
       - name: count
         type: count
@@ -22,15 +19,9 @@ cubes:
       - name: templatepipelineid
         sql: '{CUBE}."templatePipelineId"'
         type: number
-      - name: visibility
-        sql: '{CUBE}."visibility"'
-        type: string
       - name: name
         sql: '{CUBE}."name"'
         type: string
-      - name: templatemilestoneid
-        sql: '{CUBE}."templateMilestoneId"'
-        type: number
       - name: rankorder
         sql: '{CUBE}."rankOrder"'
         type: number

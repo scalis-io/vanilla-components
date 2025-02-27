@@ -1,42 +1,36 @@
 cubes:
   - name: demographic_info
-    sql_table: "\"DemographicInfo\""
-
+    sql_table: '"DemographicInfo"'
     joins:
       - name: scalis_user
-        sql: "{CUBE}.\"scalisUserId\" = {scalis_user}.id"
+        sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
         relationship: many_to_one
-
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
-      - name: gender
-        sql: gender
-        type: string
-
-      - name: raceethnicity
-        sql: "{CUBE}.\"raceEthnicity\""
-        type: string
-
+      - name: scalisuserid
+        sql: '{CUBE}."scalisUserId"'
+        type: number
       - name: workhistory
-        sql: "{CUBE}.\"workHistory\""
+        sql: '{CUBE}."workHistory"'
         type: boolean
-
-      - name: veteranstatus
-        sql: "{CUBE}.\"veteranStatus\""
+      - name: raceethnicity
+        sql: '{CUBE}."raceEthnicity"'
         type: string
-
+      - name: veteranstatus
+        sql: '{CUBE}."veteranStatus"'
+        type: string
+      - name: gender
+        sql: '{CUBE}."gender"'
+        type: string
       - name: createdat
-        sql: "{CUBE}.\"createdAt\""
+        sql: '{CUBE}."createdAt"'
         type: time
-
       - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
+        sql: '{CUBE}."updatedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count

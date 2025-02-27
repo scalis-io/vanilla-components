@@ -1,74 +1,55 @@
 cubes:
   - name: scalis_user
-    sql_table: "\"ScalisUser\""
-
-    joins: 
-      - name: demographic_info
-        sql: "{CUBE}.\"id\" = {demographic_info}.\"scalisUserId\""
+    sql_table: '"ScalisUser"'
+    joins:
+      - name: candidate_profile
+        sql: '{CUBE}.id = {candidate_profile}."scalisUserId"'
         relationship: one_to_many
-
+      - name: demographic_info
+        sql: '{CUBE}.id = {demographic_info}."scalisUserId"'
+        relationship: one_to_many
+      - name: user_invitation
+        sql: '{CUBE}.id = {user_invitation}."scalisUserId"'
+        relationship: one_to_many
+      - name: candidate_application_status
+        sql: '{CUBE}.id = {candidate_application_status}."scalisUserId"'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
+      - name: identityproviderid
+        sql: '{CUBE}."identityProviderId"'
+        type: string
+      - name: identityproviderusername
+        sql: '{CUBE}."identityProviderUsername"'
+        type: string
+      - name: firstname
+        sql: '{CUBE}."firstName"'
+        type: string
+      - name: lastname
+        sql: '{CUBE}."lastName"'
+        type: string
+      - name: profileimage
+        sql: '{CUBE}."profileImage"'
+        type: string
+      - name: currentstage
+        sql: '{CUBE}."currentStage"'
+        type: string
+      - name: completedat
+        sql: '{CUBE}."completedAt"'
+        type: time
+      - name: createdat
+        sql: '{CUBE}."createdAt"'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}."updatedAt"'
+        type: time
       - name: activestatus
-        sql: "{CUBE}.\"activeStatus\""
+        sql: '{CUBE}."activeStatus"'
         type: boolean
 
-      - name: identityproviderid
-        sql: "{CUBE}.\"identityProviderId\""
-        type: string
-
-      - name: lastname
-        sql: "{CUBE}.\"lastName\""
-        type: string
-
-      - name: currentstage
-        sql: "{CUBE}.\"currentStage\""
-        type: string
-
-      - name: passwordresetcode
-        sql: "{CUBE}.\"passwordResetCode\""
-        type: string
-
-      - name: firstname
-        sql: "{CUBE}.\"firstName\""
-        type: string
-
-      - name: identityproviderusername
-        sql: "{CUBE}.\"identityProviderUsername\""
-        type: string
-
-      - name: stripecustomerid
-        sql: "{CUBE}.\"stripeCustomerId\""
-        type: string
-
-      - name: profileimage
-        sql: "{CUBE}.\"profileImage\""
-        type: string
-
-      - name: createdat
-        sql: "{CUBE}.\"createdAt\""
-        type: time
-
-      - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
-        type: time
-
-      - name: passwordresetcodeexpiry
-        sql: "{CUBE}.\"passwordResetCodeExpiry\""
-        type: time
-
-      - name: completedat
-        sql: "{CUBE}.\"completedAt\""
-        type: time
-
-      - name: scalis_user_fullname
-        sql: "CONCAT({CUBE}.\"firstName\", ' ', {CUBE}.\"lastName\")"
-        type: string
-
-    measures:
-      - name: count
-        type: count

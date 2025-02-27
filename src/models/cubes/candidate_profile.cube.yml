@@ -1,42 +1,42 @@
 cubes:
   - name: candidate_profile
-    sql_table: "\"CandidateProfile\""
-
-    joins: 
-      - name: company
-        sql: "{CUBE}.\"companyId\" = {company}.id"
-        relationship: many_to_one
-
-      - name: job_opening
-        sql: "{CUBE}.\"id\" = {job_opening}.\"filledByCandidate\""
+    sql_table: '"CandidateProfile"'
+    joins:
+      - name: candidate_application
+        sql: '{CUBE}.id = {candidate_application}."candidateProfileId"'
         relationship: one_to_many
-
-      - name: profile_details
-        sql: "{CUBE}.\"id\" = {profile_details}.\"candidateProfileId\""
-        relationship: one_to_one
-
+      - name: company
+        sql: '{CUBE}."companyId" = {company}.id'
+        relationship: many_to_one
+      - name: scalis_user
+        sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
+        relationship: many_to_one
+      - name: job_opening
+        sql: '{CUBE}.id = {job_opening}."filledByCandidate"'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
-      - name: companyid
-        sql: "{CUBE}.\"companyId\""
+      - name: uploadedcandidateid
+        sql: '{CUBE}."uploadedCandidateId"'
         type: number
-
+      - name: companyid
+        sql: '{CUBE}."companyId"'
+        type: number
+      - name: scalisuserid
+        sql: '{CUBE}."scalisUserId"'
+        type: number
       - name: profiletype
-        sql: "{CUBE}.\"profileType\""
+        sql: '{CUBE}."profileType"'
         type: string
-
       - name: createdat
-        sql: "{CUBE}.\"createdAt\""
+        sql: '{CUBE}."createdAt"'
         type: time
-
       - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
+        sql: '{CUBE}."updatedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count

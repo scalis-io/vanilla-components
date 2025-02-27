@@ -1,46 +1,36 @@
 cubes:
   - name: profile_details
-    sql_table: "\"ProfileDetails\""
-
+    sql_table: '"ProfileDetails"'
     joins:
       - name: candidate_profile
-        sql: "{CUBE}.\"candidateProfileId\" = {candidate_profile}.id"
-        relationship: many_to_one
-
+        sql: '{CUBE}."candidateProfileId" = {candidate_profile}."id"'
+        relationship: one_to_one
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
       - name: candidateprofileid
-        sql: "{CUBE}.\"candidateProfileId\""
+        sql: '{CUBE}."candidateProfileId"'
         type: number
-
-      - name: timezone
-        sql: timezone
-        type: string
-
-      - name: secondaryemail
-        sql: "{CUBE}.\"secondaryEmail\""
-        type: string
-
       - name: phonenumber
-        sql: "{CUBE}.\"phoneNumber\""
+        sql: '{CUBE}."phoneNumber"'
         type: string
-
       - name: profilelink
-        sql: "{CUBE}.\"profileLink\""
+        sql: '{CUBE}."profileLink"'
         type: string
-
+      - name: timezone
+        sql: '{CUBE}."timezone"'
+        type: string
+      - name: secondaryemail
+        sql: '{CUBE}."secondaryEmail"'
+        type: string
       - name: createdat
-        sql: "{CUBE}.\"createdAt\""
+        sql: '{CUBE}."createdAt"'
         type: time
-
       - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
+        sql: '{CUBE}."updatedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count

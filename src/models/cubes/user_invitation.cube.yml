@@ -1,50 +1,51 @@
 cubes:
   - name: user_invitation
-    sql_table: "\"UserInvitation\""
-
+    sql_table: '"UserInvitation"'
     joins:
-      - name: scalis_user
-        sql: "{CUBE}.\"scalisUserId\" = {scalis_user}.id"
+      - name: company
+        sql: '{CUBE}."companyId" = {company}.id'
         relationship: many_to_one
-
       - name: company_user
-        sql: "{CUBE}.\"companyUserId\" = {company_user}.id"
+        sql: '{CUBE}."companyUserId" = {company_user}."id"'
+        relationship: one_to_one
+      - name: scalis_user
+        sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
         relationship: many_to_one
-
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
-      - name: invitedas
-        sql: "{CUBE}.\"invitedAs\""
-        type: string
-
       - name: verificationcode
-        sql: "{CUBE}.\"verificationCode\""
+        sql: '{CUBE}."verificationCode"'
         type: string
-
       - name: email
-        sql: email
+        sql: '{CUBE}."email"'
         type: string
-
+      - name: companyid
+        sql: '{CUBE}."companyId"'
+        type: number
+      - name: invitedas
+        sql: '{CUBE}."invitedAs"'
+        type: string
       - name: invitationstatus
-        sql: "{CUBE}.\"invitationStatus\""
+        sql: '{CUBE}."invitationStatus"'
         type: string
-
+      - name: scalisuserid
+        sql: '{CUBE}."scalisUserId"'
+        type: number
+      - name: companyuserid
+        sql: '{CUBE}."companyUserId"'
+        type: number
       - name: createdat
-        sql: "{CUBE}.\"createdAt\""
+        sql: '{CUBE}."createdAt"'
         type: time
-
       - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
+        sql: '{CUBE}."updatedAt"'
         type: time
-
       - name: deletedat
-        sql: "{CUBE}.\"deletedAt\""
+        sql: '{CUBE}."deletedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count
