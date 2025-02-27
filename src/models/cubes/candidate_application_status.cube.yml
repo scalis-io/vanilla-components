@@ -1,34 +1,42 @@
 cubes:
   - name: candidate_application_status
-    sql_table: "\"CandidateApplicationStatus\""
-
+    sql_table: '"CandidateApplicationStatus"'
     joins:
       - name: job_listing
-        sql: "{CUBE}.\"jobListingId\" = {job_listing}.id"
+        sql: '{CUBE}."jobListingId" = {job_listing}.id'
         relationship: many_to_one
-
       - name: candidate_application
-        sql: "{CUBE}.\"candidateApplicationId\" = {candidate_application}.id"
+        sql: '{CUBE}."candidateApplicationId" = {candidate_application}.id'
         relationship: many_to_one
-
+      - name: scalis_user
+        sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
+      - name: scalisuserid
+        sql: '{CUBE}."scalisUserId"'
+        type: number
+      - name: joblistingid
+        sql: '{CUBE}."jobListingId"'
+        type: number
+      - name: candidateapplicationid
+        sql: '{CUBE}."candidateApplicationId"'
+        type: number
+      - name: campaignid
+        sql: '{CUBE}."campaignId"'
+        type: number
       - name: source
-        sql: source
+        sql: '{CUBE}."source"'
         type: string
-
       - name: startedat
-        sql: "{CUBE}.\"startedAt\""
+        sql: '{CUBE}."startedAt"'
         type: time
-
       - name: completedat
-        sql: "{CUBE}.\"completedAt\""
+        sql: '{CUBE}."completedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count

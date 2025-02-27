@@ -1,19 +1,18 @@
 cubes:
   - name: role
-    sql_table: "\"Role\""
-
-    joins: []
-
+    sql_table: '"Role"'
+    joins:
+      - name: hiring_team_member
+        sql: '{CUBE}.id = {hiring_team_member}."roleId"'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
       - name: name
-        sql: name
+        sql: '{CUBE}."name"'
         type: string
-
-    measures:
-      - name: count
-        type: count
