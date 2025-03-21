@@ -11,9 +11,9 @@ cubes:
       - name: scalis_user
         sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
         relationship: many_to_one
-      - name: job_opening
-        sql: '{CUBE}.id = {job_opening}."filledByCandidate"'
-        relationship: one_to_many
+      # - name: job_opening
+      #   sql: '{CUBE}.id = {job_opening}."filledByCandidate"'
+      #   relationship: one_to_many
     measures:
       - name: count
         type: count
