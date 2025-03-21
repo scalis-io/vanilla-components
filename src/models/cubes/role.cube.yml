@@ -1,9 +1,9 @@
 cubes:
   - name: role
-    sql_table: '"Role"'
+    sql_table: role
     joins:
       - name: hiring_team_member
-        sql: '{CUBE}.id = {hiring_team_member}."roleId"'
+        sql: "{CUBE}.id = {hiring_team_member}.role_id"
         relationship: one_to_many
     measures:
       - name: count
@@ -14,5 +14,5 @@ cubes:
         type: number
         primary_key: true
       - name: name
-        sql: '{CUBE}."name"'
+        sql: "{CUBE}.name"
         type: string

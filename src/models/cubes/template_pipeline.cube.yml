@@ -1,24 +1,24 @@
 cubes:
   - name: template_pipeline
-    sql_table: '"TemplatePipeline"'
+    sql_table: template_pipeline
     joins:
       - name: template_milestone
-        sql: '{CUBE}.id = {template_milestone}."templatePipelineId"'
+        sql: "{CUBE}.id = {template_milestone}.template_pipeline_id"
         relationship: one_to_many
       - name: company
-        sql: '{CUBE}."companyId" = {company}.id'
+        sql: "{CUBE}.company_id = {company}.id"
         relationship: many_to_one
       - name: company_user
-        sql: '{CUBE}."companyUserId" = {company_user}.id'
+        sql: "{CUBE}.company_user_id = {company_user}.id"
         relationship: many_to_one
       - name: company_department
-        sql: '{CUBE}."companyDepartmentId" = {company_department}.id'
+        sql: "{CUBE}.company_department_id = {company_department}.id"
         relationship: many_to_one
       - name: template_stage
-        sql: '{CUBE}.id = {template_stage}."templatePipelineId"'
+        sql: "{CUBE}.id = {template_stage}.template_pipeline_id"
         relationship: one_to_many
       - name: job_pipeline
-        sql: '{CUBE}.id = {job_pipeline}."templatePipelineId"'
+        sql: "{CUBE}.id = {job_pipeline}.template_pipeline_id"
         relationship: one_to_many
     measures:
       - name: count
@@ -29,32 +29,32 @@ cubes:
         type: number
         primary_key: true
       - name: companyid
-        sql: '{CUBE}."companyId"'
+        sql: "{CUBE}.company_id"
         type: number
       - name: companyuserid
-        sql: '{CUBE}."companyUserId"'
+        sql: "{CUBE}.company_user_id"
         type: number
       - name: name
-        sql: '{CUBE}."name"'
+        sql: "{CUBE}.name"
         type: string
       - name: companydepartmentid
-        sql: '{CUBE}."companyDepartmentId"'
+        sql: "{CUBE}.company_department_id"
         type: number
       - name: pipelinedused
-        sql: '{CUBE}."pipelinedUsed"'
+        sql: "{CUBE}.pipelined_used"
         type: boolean
       - name: archived
-        sql: '{CUBE}."archived"'
+        sql: "{CUBE}.archived"
         type: boolean
       - name: ghostpipeline
-        sql: '{CUBE}."ghostPipeline"'
+        sql: "{CUBE}.ghost_pipeline"
         type: boolean
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: "{CUBE}.created_at"
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: "{CUBE}.updated_at"
         type: time
       - name: deletedat
-        sql: '{CUBE}."deletedAt"'
+        sql: "{CUBE}.deleted_at"
         type: time

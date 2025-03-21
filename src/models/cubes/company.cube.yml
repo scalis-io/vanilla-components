@@ -1,40 +1,40 @@
 cubes:
   - name: company
-    # sql_table: '"Company"'
+    # sql_table: company
     sql: >
-      SELECT * FROM "Company"
+      SELECT * FROM company
       {% if COMPILE_CONTEXT.securityContext.companyId %}
-        WHERE "Company"."id" = '{ COMPILE_CONTEXT.securityContext.companyId }'
+        WHERE company.id = '{ COMPILE_CONTEXT.securityContext.companyId }'
       {% else %}
         WHERE 1 = 1
       {% endif %}
     joins:
       - name: candidate_application
-        sql: '{CUBE}.id = {candidate_application}."companyId"'
+        sql: '{CUBE}.id = {candidate_application}.company_id'
         relationship: one_to_many
       - name: candidate_profile
-        sql: '{CUBE}.id = {candidate_profile}."companyId"'
+        sql: '{CUBE}.id = {candidate_profile}.company_id'
         relationship: one_to_many
       - name: company_department
-        sql: '{CUBE}.id = {company_department}."companyId"'
+        sql: '{CUBE}.id = {company_department}.company_id'
         relationship: one_to_many
       - name: company_office
-        sql: '{CUBE}.id = {company_office}."companyId"'
+        sql: '{CUBE}.id = {company_office}.company_id'
         relationship: one_to_many
       - name: company_user
-        sql: '{CUBE}.id = {company_user}."companyId"'
+        sql: '{CUBE}.id = {company_user}.company_id'
         relationship: one_to_many
       - name: job_opening
-        sql: '{CUBE}.id = {job_opening}."companyId"'
+        sql: '{CUBE}.id = {job_opening}.company_id'
         relationship: one_to_many
       - name: requisition
-        sql: '{CUBE}.id = {requisition}."companyId"'
+        sql: '{CUBE}.id = {requisition}.company_id'
         relationship: one_to_many
       - name: template_pipeline
-        sql: '{CUBE}.id = {template_pipeline}."companyId"'
+        sql: '{CUBE}.id = {template_pipeline}.company_id'
         relationship: one_to_many
       - name: user_invitation
-        sql: '{CUBE}.id = {user_invitation}."companyId"'
+        sql: '{CUBE}.id = {user_invitation}.company_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -44,22 +44,23 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        # !IMPORTANT! this is a public dimension, it will be used to filter the company
         public: true
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: '{CUBE}.updated_at'
         type: time
       - name: lastactivity
-        sql: '{CUBE}."lastActivity"'
+        sql: '{CUBE}.last_activity'
         type: time
       - name: externalcompanyid
-        sql: '{CUBE}."externalCompanyId"'
+        sql: '{CUBE}.external_company_id'
         type: string
       - name: subdomain
-        sql: '{CUBE}."subdomain"'
+        sql: '{CUBE}.subdomain'
         type: string
       - name: currency
-        sql: '{CUBE}."currency"'
+        sql: '{CUBE}.currency'
         type: string

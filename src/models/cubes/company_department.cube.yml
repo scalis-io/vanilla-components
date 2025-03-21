@@ -1,15 +1,15 @@
 cubes:
   - name: company_department
-    sql_table: '"CompanyDepartment"'
+    sql_table: company_department
     joins:
       - name: company
-        sql: '{CUBE}."companyId" = {company}.id'
+        sql: '{CUBE}.company_id = {company}.id'
         relationship: many_to_one
       - name: requisition
-        sql: '{CUBE}.id = {requisition}."companyDepartmentId"'
+        sql: '{CUBE}.id = {requisition}.company_department_id'
         relationship: one_to_many
       - name: template_pipeline
-        sql: '{CUBE}.id = {template_pipeline}."companyDepartmentId"'
+        sql: '{CUBE}.id = {template_pipeline}.company_department_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -20,20 +20,20 @@ cubes:
         type: number
         primary_key: true
       - name: companyid
-        sql: '{CUBE}."companyId"'
+        sql: '{CUBE}.company_id'
         type: number
+      - name: departmentname
+        sql: '{CUBE}.department_name'
+        type: string
       - name: externalid
-        sql: '{CUBE}."externalId"'
+        sql: '{CUBE}.external_id'
         type: string
       - name: type
-        sql: '{CUBE}."type"'
+        sql: '{CUBE}.type'
         type: string
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: '{CUBE}.updated_at'
         type: time
-      - name: departmentname
-        sql: '{CUBE}."departmentName"'
-        type: string

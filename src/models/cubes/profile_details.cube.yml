@@ -1,6 +1,6 @@
 cubes:
   - name: profile_details
-    sql_table: '"ProfileDetails"'
+    sql_table: profile_details
     joins:
       - name: candidate_profile
         sql: '{CUBE}."candidateProfileId" = {candidate_profile}."id"'
@@ -14,23 +14,23 @@ cubes:
         type: number
         primary_key: true
       - name: candidateprofileid
-        sql: '{CUBE}."candidateProfileId"'
+        sql: "{CUBE}.candidate_profile_id"
         type: number
       - name: phonenumber
-        sql: '{CUBE}."phoneNumber"'
+        sql: "{CUBE}.phone_number"
         type: string
       - name: profilelink
-        sql: '{CUBE}."profileLink"'
+        sql: "{CUBE}.profile_link"
         type: string
       - name: timezone
-        sql: '{CUBE}."timezone"'
+        sql: "{CUBE}.timezone"
         type: string
       - name: secondaryemail
-        sql: '{CUBE}."secondaryEmail"'
+        sql: "{CUBE}.secondary_email"
         type: string
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: "{CUBE}.created_at"
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: "{CUBE}.updated_at"
         type: time
