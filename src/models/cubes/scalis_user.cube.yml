@@ -52,4 +52,7 @@ cubes:
       - name: activestatus
         sql: '{CUBE}."activeStatus"'
         type: boolean
+      - name: scalis_user_fullname
+        sql: CONCAT({CUBE}."firstName", ' ', {CUBE}."lastName")
+        type: string
 
