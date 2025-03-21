@@ -1,15 +1,15 @@
 cubes:
   - name: hiring_team_member
-    sql_table: '"HiringTeamMember"'
+    sql_table: hiring_team_member
     joins:
       - name: role
-        sql: '{CUBE}."roleId" = {role}.id'
+        sql: "{CUBE}.role_id = {role}.id"
         relationship: many_to_one
       - name: requisition
-        sql: '{CUBE}."requisitionId" = {requisition}.id'
+        sql: "{CUBE}.requisition_id = {requisition}.id"
         relationship: many_to_one
       - name: company_user
-        sql: '{CUBE}."companyUserId" = {company_user}.id'
+        sql: "{CUBE}.company_user_id = {company_user}.id"
         relationship: many_to_one
     measures:
       - name: count
@@ -20,20 +20,20 @@ cubes:
         type: number
         primary_key: true
       - name: requisitionid
-        sql: '{CUBE}."requisitionId"'
+        sql: "{CUBE}.requisition_id"
         type: number
       - name: companyuserid
-        sql: '{CUBE}."companyUserId"'
+        sql: "{CUBE}.company_user_id"
         type: number
       - name: roleid
-        sql: '{CUBE}."roleId"'
+        sql: "{CUBE}.role_id"
         type: number
       - name: requisitionjobdescriptionid
-        sql: '{CUBE}."requisitionJobDescriptionId"'
+        sql: "{CUBE}.requisition_job_description_id"
         type: number
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: "{CUBE}.created_at"
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: "{CUBE}.updated_at"
         type: time

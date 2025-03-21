@@ -1,18 +1,18 @@
 cubes:
   - name: candidate_profile
-    sql_table: '"CandidateProfile"'
+    sql_table: candidate_profile
     joins:
       - name: candidate_application
-        sql: '{CUBE}.id = {candidate_application}."candidateProfileId"'
+        sql: '{CUBE}.id = {candidate_application}.candidate_profile_id'
         relationship: one_to_many
       - name: company
-        sql: '{CUBE}."companyId" = {company}.id'
+        sql: '{CUBE}.company_id = {company}.id'
         relationship: many_to_one
       - name: scalis_user
-        sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
+        sql: '{CUBE}.scalis_user_id = {scalis_user}.id'
         relationship: many_to_one
       # - name: job_opening
-      #   sql: '{CUBE}.id = {job_opening}."filledByCandidate"'
+      #   sql: "{CUBE}.id = {job_opening}.filled_by_candidate"
       #   relationship: one_to_many
     measures:
       - name: count
@@ -23,20 +23,20 @@ cubes:
         type: number
         primary_key: true
       - name: uploadedcandidateid
-        sql: '{CUBE}."uploadedCandidateId"'
+        sql: '{CUBE}.uploaded_candidate_id'
         type: number
       - name: companyid
-        sql: '{CUBE}."companyId"'
+        sql: '{CUBE}.company_id'
         type: number
       - name: scalisuserid
-        sql: '{CUBE}."scalisUserId"'
+        sql: '{CUBE}.scalis_user_id'
         type: number
       - name: profiletype
-        sql: '{CUBE}."profileType"'
+        sql: '{CUBE}.profile_type'
         type: string
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: '{CUBE}.updated_at'
         type: time

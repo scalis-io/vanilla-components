@@ -1,15 +1,15 @@
 cubes:
   - name: template_stage
-    sql_table: '"TemplateStage"'
+    sql_table: template_stage
     joins:
       - name: candidate_application
-        sql: '{CUBE}.id = {candidate_application}."templateStageId"'
+        sql: "{CUBE}.id = {candidate_application}.template_stage_id"
         relationship: one_to_many
       - name: template_milestone
-        sql: '{CUBE}."templateMilestoneId" = {template_milestone}.id'
+        sql: "{CUBE}.template_milestone_id = {template_milestone}.id"
         relationship: many_to_one
       - name: template_pipeline
-        sql: '{CUBE}."templatePipelineId" = {template_pipeline}.id'
+        sql: "{CUBE}.template_pipeline_id = {template_pipeline}.id"
         relationship: many_to_one
     measures:
       - name: count
@@ -20,26 +20,26 @@ cubes:
         type: number
         primary_key: true
       - name: templatepipelineid
-        sql: '{CUBE}."templatePipelineId"'
+        sql: "{CUBE}.template_pipeline_id"
         type: number
       - name: visibility
-        sql: '{CUBE}."visibility"'
+        sql: "{CUBE}.visibility"
         type: string
       - name: name
-        sql: '{CUBE}."name"'
+        sql: "{CUBE}.name"
         type: string
       - name: templatemilestoneid
-        sql: '{CUBE}."templateMilestoneId"'
+        sql: "{CUBE}.template_milestone_id"
         type: number
       - name: rankorder
-        sql: '{CUBE}."rankOrder"'
+        sql: "{CUBE}.rank_order"
         type: number
       - name: archived
-        sql: '{CUBE}."archived"'
+        sql: "{CUBE}.archived"
         type: boolean
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: "{CUBE}.created_at"
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: "{CUBE}.updated_at"
         type: time
