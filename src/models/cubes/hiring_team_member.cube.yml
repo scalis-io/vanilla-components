@@ -1,39 +1,39 @@
 cubes:
   - name: hiring_team_member
-    sql_table: "\"HiringTeamMember\""
-
+    sql_table: '"HiringTeamMember"'
     joins:
-      - name: requisition
-        sql: "{CUBE}.\"requisitionId\" = {requisition}.id"
-        relationship: many_to_one
-
-      - name: company_user
-        sql: "{CUBE}.\"companyUserId\" = {company_user}.id"
-        relationship: many_to_one
-
       - name: role
-        sql: "{CUBE}.\"roleId\" = {role}.id"
+        sql: '{CUBE}."roleId" = {role}.id'
         relationship: many_to_one
-
+      - name: requisition
+        sql: '{CUBE}."requisitionId" = {requisition}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}."companyUserId" = {company_user}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
-    measures:
-      - name: count
-        type: count
-
-    # pre_aggregations:
-    #   - name: main
-    #     type: rollup
-    #     measures:
-    #       - count
-    #     dimensions:
-    #       - role_name
-    #       - scalis_user_fullname
-    #     partition_granularity: month
-
-    # default_sorting:
-    #   - requisition_jobname: asc
+      - name: requisitionid
+        sql: '{CUBE}."requisitionId"'
+        type: number
+      - name: companyuserid
+        sql: '{CUBE}."companyUserId"'
+        type: number
+      - name: roleid
+        sql: '{CUBE}."roleId"'
+        type: number
+      - name: requisitionjobdescriptionid
+        sql: '{CUBE}."requisitionJobDescriptionId"'
+        type: number
+      - name: createdat
+        sql: '{CUBE}."createdAt"'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}."updatedAt"'
+        type: time

@@ -1,34 +1,36 @@
 cubes:
   - name: company_office
-    sql_table: "\"CompanyOffice\""
-
-    joins: 
+    sql_table: '"CompanyOffice"'
+    joins:
+      - name: company
+        sql: '{CUBE}."companyId" = {company}.id'
+        relationship: many_to_one
       - name: requisition
-        sql: "{CUBE}.\"id\" = {requisition}.\"companyOfficeId\""
+        sql: '{CUBE}.id = {requisition}."companyOfficeId"'
         relationship: one_to_many
-
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
+      - name: companyid
+        sql: '{CUBE}."companyId"'
+        type: number
       - name: officename
-        sql: "{CUBE}.\"officeName\""
+        sql: '{CUBE}."officeName"'
         type: string
-
       - name: externalid
-        sql: "{CUBE}.\"externalId\""
+        sql: '{CUBE}."externalId"'
         type: string
-
+      - name: addressid
+        sql: '{CUBE}."addressId"'
+        type: number
       - name: createdat
-        sql: "{CUBE}.\"createdAt\""
+        sql: '{CUBE}."createdAt"'
         type: time
-
       - name: updatedat
-        sql: "{CUBE}.\"updatedAt\""
+        sql: '{CUBE}."updatedAt"'
         type: time
-
-    measures:
-      - name: count
-        type: count

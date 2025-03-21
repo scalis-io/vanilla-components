@@ -1,72 +1,68 @@
 cubes:
   - name: job_opening
-    sql_table: "\"JobOpening\""
-
+    sql_table: '"JobOpening"'
     joins:
+      - name: company
+        sql: '{CUBE}."companyId" = {company}.id'
+        relationship: many_to_one
       - name: requisition
-        sql: "{CUBE}.\"jobRequisitionId\" = {requisition}.id"
+        sql: '{CUBE}."jobRequisitionId" = {requisition}.id'
         relationship: many_to_one
-
+      - name: candidate_application
+        sql: '{CUBE}."filledByApplication" = {candidate_application}.id'
+        relationship: many_to_one
       - name: candidate_profile
-        sql: "{CUBE}.\"filledByCandidate\" = {candidate_profile}.id"
+        sql: '{CUBE}."filledByCandidate" = {candidate_profile}.id'
         relationship: many_to_one
-
+    measures:
+      - name: count
+        type: count
+      - name: remaining_openings
+        title: "Remaining Openings"
+        sql: "CASE WHEN {CUBE}.\"filledDate\" IS NULL THEN 1 END"
+        type: count
+      - name: filled_openings
+        title: "Filled Openings"
+        sql: "CASE WHEN {CUBE}.\"filledDate\" IS NOT NULL THEN 1 END"
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
-      - name: filledbyapplication
-        sql: "{CUBE}.\"filledByApplication\""
+      - name: jobrequisitionid
+        sql: '{CUBE}."jobRequisitionId"'
         type: number
-
-      - name: filledbycandidate
-        sql: "{CUBE}.\"filledByCandidate\""
-        type: number
-
-      - name: closedreason
-        sql: "{CUBE}.\"closedReason\""
-        type: string
-
-      - name: extopeningid
-        sql: "{CUBE}.\"extOpeningId\""
-        type: string
-
-      - name: openingtype
-        sql: "{CUBE}.\"openingType\""
-        type: string
-
       - name: openingstatus
-        sql: "{CUBE}.\"openingStatus\""
+        sql: '{CUBE}."openingStatus"'
         type: string
-
+      - name: extopeningid
+        sql: '{CUBE}."extOpeningId"'
+        type: string
+      - name: companyid
+        sql: '{CUBE}."companyId"'
+        type: number
       - name: targethiredate
-        sql: "{CUBE}.\"targetHireDate\""
+        sql: '{CUBE}."targetHireDate"'
         type: time
-
-      - name: closeddate
-        sql: "{CUBE}.\"closedDate\""
-        type: time
-
-      - name: startdate
-        sql: "{CUBE}.\"startDate\""
-        type: time
-
+      - name: openingtype
+        sql: '{CUBE}."openingType"'
+        type: string
       - name: filleddate
-        sql: "{CUBE}.\"filledDate\""
+        sql: '{CUBE}."filledDate"'
         type: time
-
-    measures:
-      - name: count
-        type: count
-
-      - name: remaining_openings
-        title: "Remaining Openings"
-        sql: "CASE WHEN {CUBE}.\"filledDate\" IS NULL THEN 1 END"
-        type: count
-
-      - name: filled_openings
-        title: "Filled Openings"
-        sql: "CASE WHEN {CUBE}.\"filledDate\" IS NOT NULL THEN 1 END"
-        type: count
+      - name: startdate
+        sql: '{CUBE}."startDate"'
+        type: time
+      - name: closeddate
+        sql: '{CUBE}."closedDate"'
+        type: time
+      - name: filledbyapplication
+        sql: '{CUBE}."filledByApplication"'
+        type: number
+      - name: filledbycandidate
+        sql: '{CUBE}."filledByCandidate"'
+        type: number
+      - name: closedreason
+        sql: '{CUBE}."closedReason"'
+        type: string
