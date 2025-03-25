@@ -1,24 +1,24 @@
 cubes:
   - name: candidate_application
-    sql_table: '"CandidateApplication"'
+    sql_table: candidate_application
     joins:
       - name: candidate_profile
-        sql: '{CUBE}."candidateProfileId" = {candidate_profile}.id'
+        sql: "{CUBE}.candidate_profile_id = {candidate_profile}.id"
         relationship: many_to_one
       - name: company
-        sql: '{CUBE}."companyId" = {company}.id'
+        sql: "{CUBE}.company_id = {company}.id"
         relationship: many_to_one
       - name: job_listing
-        sql: '{CUBE}."jobListingId" = {job_listing}.id'
+        sql: "{CUBE}.job_listing_id = {job_listing}.id"
         relationship: many_to_one
       - name: template_stage
-        sql: '{CUBE}."templateStageId" = {template_stage}.id'
+        sql: "{CUBE}.template_stage_id = {template_stage}.id"
         relationship: many_to_one
       - name: job_opening
-        sql: '{CUBE}.id = {job_opening}."filledByApplication"'
+        sql: "{CUBE}.id = {job_opening}.filled_by_application"
         relationship: one_to_many
       - name: candidate_application_status
-        sql: '{CUBE}.id = {candidate_application_status}."candidateApplicationId"'
+        sql: "{CUBE}.id = {candidate_application_status}.candidate_application_id"
         relationship: one_to_many
     measures:
       - name: count
@@ -29,53 +29,53 @@ cubes:
         type: number
         primary_key: true
       - name: candidateprofileid
-        sql: '{CUBE}."candidateProfileId"'
+        sql: "{CUBE}.candidate_profile_id"
         type: number
       - name: applicationtype
-        sql: '{CUBE}."applicationType"'
+        sql: "{CUBE}.application_type"
         type: string
       - name: applicationstatus
-        sql: '{CUBE}."applicationStatus"'
+        sql: "{CUBE}.application_status"
         type: string
       - name: joblistingid
-        sql: '{CUBE}."jobListingId"'
+        sql: "{CUBE}.job_listing_id"
         type: number
       - name: templatestageid
-        sql: '{CUBE}."templateStageId"'
+        sql: "{CUBE}.template_stage_id"
         type: number
       - name: applicationtimestamp
-        sql: '{CUBE}."applicationTimestamp"'
+        sql: "{CUBE}.application_timestamp"
         type: time
       - name: companyid
-        sql: '{CUBE}."companyId"'
+        sql: "{CUBE}.company_id"
         type: number
       - name: viewedprofile
-        sql: '{CUBE}."viewedProfile"'
+        sql: "{CUBE}.viewed_profile"
         type: boolean
       - name: matchscore
-        sql: '{CUBE}."matchScore"'
+        sql: "{CUBE}.match_score"
         type: number
       - name: lastupdatedstatusat
-        sql: '{CUBE}."lastUpdatedStatusAt"'
+        sql: "{CUBE}.last_updated_status_at"
         type: time
       - name: applicationcreationtype
-        sql: '{CUBE}."applicationCreationType"'
+        sql: "{CUBE}.application_creation_type"
         type: string
       - name: interviewscheduling
-        sql: '{CUBE}."interviewScheduling"'
+        sql: "{CUBE}.interview_scheduling"
         type: string
       - name: viewedat
-        sql: '{CUBE}."viewedAt"'
+        sql: "{CUBE}.viewed_at"
         type: time
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: "{CUBE}.created_at"
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: "{CUBE}.updated_at"
         type: time
       - name: appliedat
-        sql: '{CUBE}."appliedAt"'
+        sql: "{CUBE}.applied_at"
         type: time
       - name: deleted
-        sql: '{CUBE}."deleted"'
+        sql: "{CUBE}.deleted"
         type: time

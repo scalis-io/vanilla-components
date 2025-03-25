@@ -1,18 +1,18 @@
 cubes:
   - name: company_user
-    sql_table: '"CompanyUser"'
+    sql_table: company_user
     joins:
       - name: company
-        sql: '{CUBE}."companyId" = {company}.id'
+        sql: '{CUBE}.company_id = {company}.id'
         relationship: many_to_one
       - name: template_pipeline
-        sql: '{CUBE}.id = {template_pipeline}."companyUserId"'
+        sql: '{CUBE}.id = {template_pipeline}.company_user_id'
         relationship: one_to_many
       - name: hiring_team_member
-        sql: '{CUBE}.id = {hiring_team_member}."companyUserId"'
+        sql: '{CUBE}.id = {hiring_team_member}.company_user_id'
         relationship: one_to_many
       - name: requisition
-        sql: '{CUBE}.id = {requisition}."companyUserId"'
+        sql: '{CUBE}.id = {requisition}.company_user_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -23,20 +23,20 @@ cubes:
         type: number
         primary_key: true
       - name: companyid
-        sql: '{CUBE}."companyId"'
+        sql: '{CUBE}.company_id'
         type: number
       - name: userinvitationid
-        sql: '{CUBE}."userInvitationId"'
+        sql: '{CUBE}.user_invitation_id'
         type: number
       - name: companyuserstatus
-        sql: '{CUBE}."companyUserStatus"'
+        sql: '{CUBE}.company_user_status'
         type: string
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: '{CUBE}.updated_at'
         type: time
       - name: profileimage
-        sql: '{CUBE}."profileImage"'
+        sql: '{CUBE}.profile_image'
         type: string

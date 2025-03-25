@@ -1,15 +1,15 @@
 cubes:
   - name: job_pipeline
-    sql_table: '"JobPipeline"'
+    sql_table: job_pipeline
     joins:
       - name: job_listing_job_pipeline
-        sql: '{CUBE}.id = {job_listing_job_pipeline}."jobPipelineId"'
+        sql: "{CUBE}.id = {job_listing_job_pipeline}.job_pipeline_id"
         relationship: one_to_many
       - name: requisition
-        sql: '{CUBE}."jobRequisitionId" = {requisition}.id'
+        sql: "{CUBE}.job_requisition_id = {requisition}.id"
         relationship: many_to_one
       - name: template_pipeline
-        sql: '{CUBE}."templatePipelineId" = {template_pipeline}.id'
+        sql: "{CUBE}.template_pipeline_id = {template_pipeline}.id"
         relationship: many_to_one
     measures:
       - name: count
@@ -20,11 +20,11 @@ cubes:
         type: number
         primary_key: true
       - name: title
-        sql: '{CUBE}."title"'
+        sql: "{CUBE}.title"
         type: string
       - name: jobrequisitionid
-        sql: '{CUBE}."jobRequisitionId"'
+        sql: "{CUBE}.job_requisition_id"
         type: number
       - name: templatepipelineid
-        sql: '{CUBE}."templatePipelineId"'
+        sql: "{CUBE}.template_pipeline_id"
         type: number

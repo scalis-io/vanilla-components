@@ -1,30 +1,30 @@
 cubes:
   - name: requisition
-    sql_table: '"Requisition"'
+    sql_table: requisition
     joins:
       - name: job_listing
-        sql: '{CUBE}.id = {job_listing}."jobRequisitionId"'
+        sql: '{CUBE}.id = {job_listing}.job_requisition_id'
         relationship: one_to_many
       - name: job_opening
-        sql: '{CUBE}.id = {job_opening}."jobRequisitionId"'
+        sql: '{CUBE}.id = {job_opening}.job_requisition_id'
         relationship: one_to_many
       - name: job_pipeline
-        sql: '{CUBE}.id = {job_pipeline}."jobRequisitionId"'
+        sql: '{CUBE}.id = {job_pipeline}.job_requisition_id'
         relationship: one_to_many
       - name: company
-        sql: '{CUBE}."companyId" = {company}.id'
+        sql: '{CUBE}.company_id = {company}.id'
         relationship: many_to_one
       - name: company_user
-        sql: '{CUBE}."companyUserId" = {company_user}.id'
+        sql: '{CUBE}.company_user_id = {company_user}.id'
         relationship: many_to_one
       - name: company_department
-        sql: '{CUBE}."companyDepartmentId" = {company_department}.id'
+        sql: '{CUBE}.company_department_id = {company_department}.id'
         relationship: many_to_one
       - name: company_office
-        sql: '{CUBE}."companyOfficeId" = {company_office}.id'
+        sql: '{CUBE}.company_office_id = {company_office}.id'
         relationship: many_to_one
       - name: hiring_team_member
-        sql: '{CUBE}.id = {hiring_team_member}."requisitionId"'
+        sql: '{CUBE}.id = {hiring_team_member}.requisition_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -35,83 +35,83 @@ cubes:
         type: number
         primary_key: true
       - name: companyid
-        sql: '{CUBE}."companyId"'
+        sql: '{CUBE}.company_id'
         type: number
       - name: companydepartmentid
-        sql: '{CUBE}."companyDepartmentId"'
+        sql: '{CUBE}.company_department_id'
         type: number
       - name: companyofficeid
-        sql: '{CUBE}."companyOfficeId"'
+        sql: '{CUBE}.company_office_id'
         type: number
       - name: extrequisitionid
-        sql: '{CUBE}."extRequisitionId"'
+        sql: '{CUBE}.ext_requisition_id'
         type: string
       - name: jobtype
-        sql: '{CUBE}."jobType"'
+        sql: '{CUBE}.job_type'
         type: string
       - name: joblevel
-        sql: '{CUBE}."jobLevel"'
+        sql: '{CUBE}.job_level'
         type: string
       - name: benefits
-        sql: '{CUBE}."benefits"'
+        sql: '{CUBE}.benefits'
         type: string
       - name: paytype
-        sql: '{CUBE}."payType"'
+        sql: '{CUBE}.pay_type'
         type: string
       - name: minpay
-        sql: '{CUBE}."minPay"'
+        sql: '{CUBE}.min_pay'
         type: number
       - name: maxpay
-        sql: '{CUBE}."maxPay"'
+        sql: '{CUBE}.max_pay'
         type: number
       - name: additionalcomp
-        sql: '{CUBE}."additionalComp"'
+        sql: '{CUBE}.additional_comp'
         type: string
       - name: teamsize
-        sql: '{CUBE}."teamSize"'
+        sql: '{CUBE}.team_size'
         type: string
       - name: jobname
-        sql: '{CUBE}."jobName"'
+        sql: '{CUBE}.job_name'
         type: string
       - name: yearsofexperiencepref
-        sql: '{CUBE}."yearsOfExperiencePref"'
+        sql: '{CUBE}.years_of_experience_pref'
         type: string
       - name: locationdistancepref
-        sql: '{CUBE}."locationDistancePref"'
+        sql: '{CUBE}.location_distance_pref'
         type: number
       - name: nontraditionalpref
-        sql: '{CUBE}."nonTraditionalPref"'
+        sql: '{CUBE}.non_traditional_pref'
         type: boolean
       - name: diversehirepref
-        sql: '{CUBE}."diverseHirePref"'
+        sql: '{CUBE}.diverse_hire_pref'
         type: boolean
       - name: veteranpref
-        sql: '{CUBE}."veteranPref"'
+        sql: '{CUBE}.veteran_pref'
         type: boolean
       - name: collegegradpref
-        sql: '{CUBE}."collegeGradPref"'
+        sql: '{CUBE}.college_grad_pref'
         type: boolean
       - name: educationlevelpref
-        sql: '{CUBE}."educationLevelPref"'
+        sql: '{CUBE}.education_level_pref'
         type: string
       - name: traveltype
-        sql: '{CUBE}."travelType"'
+        sql: '{CUBE}.travel_type'
         type: string
       - name: companyuserid
-        sql: '{CUBE}."companyUserId"'
+        sql: '{CUBE}.company_user_id'
         type: number
       - name: jobstatus
-        sql: '{CUBE}."jobStatus"'
+        sql: '{CUBE}.job_status'
         type: string
       - name: primarycontact
-        sql: '{CUBE}."primaryContact"'
+        sql: '{CUBE}.primary_contact'
         type: number
       - name: openedat
-        sql: '{CUBE}."openedAt"'
+        sql: '{CUBE}.opened_at'
         type: time
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: '{CUBE}.updated_at'
         type: time

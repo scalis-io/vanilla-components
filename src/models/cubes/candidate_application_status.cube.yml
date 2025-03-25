@@ -1,15 +1,15 @@
 cubes:
   - name: candidate_application_status
-    sql_table: '"CandidateApplicationStatus"'
+    sql_table: candidate_application_status
     joins:
       - name: job_listing
-        sql: '{CUBE}."jobListingId" = {job_listing}.id'
+        sql: "{CUBE}.job_listing_id = {job_listing}.id"
         relationship: many_to_one
       - name: candidate_application
-        sql: '{CUBE}."candidateApplicationId" = {candidate_application}.id'
+        sql: "{CUBE}.candidate_application_id = {candidate_application}.id"
         relationship: many_to_one
       - name: scalis_user
-        sql: '{CUBE}."scalisUserId" = {scalis_user}.id'
+        sql: "{CUBE}.scalis_user_id = {scalis_user}.id"
         relationship: many_to_one
     measures:
       - name: count
@@ -20,23 +20,23 @@ cubes:
         type: number
         primary_key: true
       - name: scalisuserid
-        sql: '{CUBE}."scalisUserId"'
+        sql: "{CUBE}.scalis_user_id"
         type: number
       - name: joblistingid
-        sql: '{CUBE}."jobListingId"'
+        sql: "{CUBE}.job_listing_id"
         type: number
       - name: candidateapplicationid
-        sql: '{CUBE}."candidateApplicationId"'
+        sql: "{CUBE}.candidate_application_id"
         type: number
       - name: campaignid
-        sql: '{CUBE}."campaignId"'
+        sql: "{CUBE}.campaign_id"
         type: number
       - name: source
-        sql: '{CUBE}."source"'
+        sql: "{CUBE}.source"
         type: string
       - name: startedat
-        sql: '{CUBE}."startedAt"'
+        sql: "{CUBE}.started_at"
         type: time
       - name: completedat
-        sql: '{CUBE}."completedAt"'
+        sql: "{CUBE}.completed_at"
         type: time

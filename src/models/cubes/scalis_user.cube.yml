@@ -1,18 +1,18 @@
 cubes:
   - name: scalis_user
-    sql_table: '"ScalisUser"'
+    sql_table: scalis_user
     joins:
       - name: candidate_profile
-        sql: '{CUBE}.id = {candidate_profile}."scalisUserId"'
+        sql: '{CUBE}.id = {candidate_profile}.scalis_user_id'
         relationship: one_to_many
       - name: demographic_info
-        sql: '{CUBE}.id = {demographic_info}."scalisUserId"'
+        sql: '{CUBE}.id = {demographic_info}.scalis_user_id'
         relationship: one_to_many
       - name: user_invitation
-        sql: '{CUBE}.id = {user_invitation}."scalisUserId"'
+        sql: '{CUBE}.id = {user_invitation}.scalis_user_id'
         relationship: one_to_many
       - name: candidate_application_status
-        sql: '{CUBE}.id = {candidate_application_status}."scalisUserId"'
+        sql: '{CUBE}.id = {candidate_application_status}.scalis_user_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -23,36 +23,35 @@ cubes:
         type: number
         primary_key: true
       - name: identityproviderid
-        sql: '{CUBE}."identityProviderId"'
+        sql: '{CUBE}.identity_provider_id'
         type: string
       - name: identityproviderusername
-        sql: '{CUBE}."identityProviderUsername"'
+        sql: '{CUBE}.identity_provider_username'
         type: string
       - name: firstname
-        sql: '{CUBE}."firstName"'
+        sql: '{CUBE}.first_name'
         type: string
       - name: lastname
-        sql: '{CUBE}."lastName"'
+        sql: '{CUBE}.last_name'
         type: string
       - name: profileimage
-        sql: '{CUBE}."profileImage"'
+        sql: '{CUBE}.profile_image'
         type: string
       - name: currentstage
-        sql: '{CUBE}."currentStage"'
+        sql: '{CUBE}.current_stage'
         type: string
       - name: completedat
-        sql: '{CUBE}."completedAt"'
+        sql: '{CUBE}.completed_at'
         type: time
       - name: createdat
-        sql: '{CUBE}."createdAt"'
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: '{CUBE}."updatedAt"'
+        sql: '{CUBE}.updated_at'
         type: time
       - name: activestatus
-        sql: '{CUBE}."activeStatus"'
+        sql: '{CUBE}.active_status'
         type: boolean
       - name: scalis_user_fullname
-        sql: CONCAT({CUBE}."firstName", ' ', {CUBE}."lastName")
+        sql: CONCAT({CUBE}.first_name, ' ', {CUBE}.last_Name)
         type: string
-
