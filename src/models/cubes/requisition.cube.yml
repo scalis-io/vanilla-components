@@ -8,9 +8,6 @@ cubes:
       - name: job_opening
         sql: '{CUBE}.id = {job_opening}.job_requisition_id'
         relationship: one_to_many
-      - name: job_pipeline
-        sql: '{CUBE}.id = {job_pipeline}.job_requisition_id'
-        relationship: one_to_many
       - name: company
         sql: '{CUBE}.company_id = {company}.id'
         relationship: many_to_one
@@ -25,6 +22,9 @@ cubes:
         relationship: many_to_one
       - name: hiring_team_member
         sql: '{CUBE}.id = {hiring_team_member}.requisition_id'
+        relationship: one_to_many
+      - name: custom_candidate_profile_field
+        sql: '{CUBE}.id = {custom_candidate_profile_field}.requisition_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -43,6 +43,12 @@ cubes:
       - name: companyofficeid
         sql: '{CUBE}.company_office_id'
         type: number
+      - name: approvalworkflowjson
+        sql: '{CUBE}.approval_workflow_json'
+        type: string
+      - name: approvalstatus
+        sql: '{CUBE}.approval_status'
+        type: string
       - name: extrequisitionid
         sql: '{CUBE}.ext_requisition_id'
         type: string
@@ -106,6 +112,9 @@ cubes:
       - name: primarycontact
         sql: '{CUBE}.primary_contact'
         type: number
+      - name: isincomplete
+        sql: '{CUBE}.is_incomplete'
+        type: boolean
       - name: openedat
         sql: '{CUBE}.opened_at'
         type: time
@@ -115,3 +124,6 @@ cubes:
       - name: updatedat
         sql: '{CUBE}.updated_at'
         type: time
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean

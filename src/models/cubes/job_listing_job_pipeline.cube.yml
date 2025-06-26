@@ -3,10 +3,10 @@ cubes:
     sql_table: job_listing_job_pipeline
     joins:
       - name: job_listing
-        sql: "{CUBE}.job_listing_id = {job_listing}.id"
-        relationship: many_to_one
+        sql: '{CUBE}."jobListingId" = {job_listing}."id"'
+        relationship: one_to_one
       - name: job_pipeline
-        sql: "{CUBE}.job_pipeline_id = {job_pipeline}.id"
+        sql: '{CUBE}.job_pipeline_id = {job_pipeline}.id'
         relationship: many_to_one
     measures:
       - name: count
@@ -17,14 +17,14 @@ cubes:
         type: number
         primary_key: true
       - name: joblistingid
-        sql: "{CUBE}.job_listing_id"
+        sql: '{CUBE}.job_listing_id'
         type: number
       - name: jobpipelineid
-        sql: "{CUBE}.job_pipeline_id"
+        sql: '{CUBE}.job_pipeline_id'
         type: number
       - name: createdat
-        sql: "{CUBE}.created_at"
+        sql: '{CUBE}.created_at'
         type: time
       - name: updatedat
-        sql: "{CUBE}.updated_at"
+        sql: '{CUBE}.updated_at'
         type: time
