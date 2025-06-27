@@ -1,0 +1,40 @@
+cubes:
+  - name: custom_candidate_profile_field_value
+    sql_table: custom_candidate_profile_field_value
+    joins:
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: custom_candidate_profile_field
+        sql: '{CUBE}.custom_candidate_profile_field_id =
+          {custom_candidate_profile_field}.id'
+        relationship: many_to_one
+      - name: candidate_profile
+        sql: '{CUBE}.candidate_profile_id = {candidate_profile}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: customcandidateprofilefieldid
+        sql: '{CUBE}.custom_candidate_profile_field_id'
+        type: number
+      - name: candidateprofileid
+        sql: '{CUBE}.candidate_profile_id'
+        type: number
+      - name: value
+        sql: '{CUBE}.value'
+        type: string
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time

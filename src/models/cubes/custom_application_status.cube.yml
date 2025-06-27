@@ -1,0 +1,45 @@
+cubes:
+  - name: custom_application_status
+    sql_table: custom_application_status
+    joins:
+      - name: company
+        sql: '{CUBE}.company_id = {company}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: candidate_application
+        sql: '{CUBE}.id = {candidate_application}.custom_application_status_id'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: companyid
+        sql: '{CUBE}.company_id'
+        type: number
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: applicationstatusname
+        sql: '{CUBE}.application_status_name'
+        type: string
+      - name: colorhexcode
+        sql: '{CUBE}.color_hex_code'
+        type: string
+      - name: iconunicode
+        sql: '{CUBE}.icon_unicode'
+        type: string
+      - name: icontype
+        sql: '{CUBE}.icon_type'
+        type: string
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time

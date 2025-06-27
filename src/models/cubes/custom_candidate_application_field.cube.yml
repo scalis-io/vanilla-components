@@ -1,0 +1,61 @@
+cubes:
+  - name: custom_candidate_application_field
+    sql_table: custom_candidate_application_field
+    joins:
+      - name: company
+        sql: '{CUBE}.company_id = {company}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: custom_candidate_application_field_value
+        sql: '{CUBE}.id =
+          {custom_candidate_application_field_value}.custom_candidate_application_field_id'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: name
+        sql: '{CUBE}.name'
+        type: string
+      - name: companyid
+        sql: '{CUBE}.company_id'
+        type: number
+      - name: schema
+        sql: '{CUBE}.schema'
+        type: string
+      - name: type
+        sql: '{CUBE}.type'
+        type: string
+      - name: isarchived
+        sql: '{CUBE}.is_archived'
+        type: boolean
+      - name: visibility
+        sql: '{CUBE}.visibility'
+        type: string
+      - name: provider
+        sql: '{CUBE}.provider'
+        type: string
+      - name: tooltip
+        sql: '{CUBE}.tooltip'
+        type: boolean
+      - name: tooltiptext
+        sql: '{CUBE}.tooltip_text'
+        type: string
+      - name: systemtokenname
+        sql: '{CUBE}.system_token_name'
+        type: string
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time

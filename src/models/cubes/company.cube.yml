@@ -36,6 +36,15 @@ cubes:
       - name: user_invitation
         sql: '{CUBE}.id = {user_invitation}.company_id'
         relationship: one_to_many
+      - name: custom_application_status
+        sql: '{CUBE}.id = {custom_application_status}.company_id'
+        relationship: one_to_many
+      - name: custom_candidate_profile_field
+        sql: '{CUBE}.id = {custom_candidate_profile_field}.company_id'
+        relationship: one_to_many
+      - name: custom_candidate_application_field
+        sql: '{CUBE}.id = {custom_candidate_application_field}.company_id'
+        relationship: one_to_many
     measures:
       - name: count
         type: count
@@ -55,8 +64,8 @@ cubes:
       - name: lastactivity
         sql: '{CUBE}.last_activity'
         type: time
-      - name: externalcompanyid
-        sql: '{CUBE}.external_company_id'
+      - name: externalid
+        sql: '{CUBE}.external_id'
         type: string
       - name: subdomain
         sql: '{CUBE}.subdomain'

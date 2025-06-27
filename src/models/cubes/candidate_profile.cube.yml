@@ -12,8 +12,11 @@ cubes:
         sql: '{CUBE}.scalis_user_id = {scalis_user}.id'
         relationship: many_to_one
       # - name: job_opening
-      #   sql: "{CUBE}.id = {job_opening}.filled_by_candidate"
+      #   sql: '{CUBE}.id = {job_opening}.filled_by_candidate'
       #   relationship: one_to_many
+      - name: custom_candidate_profile_field_value
+        sql: '{CUBE}.id = {custom_candidate_profile_field_value}.candidate_profile_id'
+        relationship: one_to_many
     measures:
       - name: count
         type: count
@@ -31,9 +34,18 @@ cubes:
       - name: scalisuserid
         sql: '{CUBE}.scalis_user_id'
         type: number
+      - name: primaryemail
+        sql: '{CUBE}.primary_email'
+        type: string
+      - name: donotcontact
+        sql: '{CUBE}.do_not_contact'
+        type: boolean
       - name: profiletype
         sql: '{CUBE}.profile_type'
         type: string
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean
       - name: createdat
         sql: '{CUBE}.created_at'
         type: time
