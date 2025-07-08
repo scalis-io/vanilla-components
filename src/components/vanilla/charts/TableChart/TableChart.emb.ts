@@ -36,6 +36,14 @@ export const meta = {
         dataset: 'ds',
       },
       category: 'Chart data',
+      inputs: [
+        {
+          name: 'customColumnLabel',
+          type: 'string',
+          label: 'Column Header',
+          description: 'Custom label to display instead of the default column header',
+        },
+      ],
     },
     // Chart settings
     {
@@ -107,7 +115,13 @@ export const meta = {
 export default defineComponent<
   Props,
   typeof meta,
-  { maxRowsFit: number; sort: OrderBy[]; page: number; prevVariableValues: Record<string, any> }
+  {
+    downloadAll: boolean;
+    maxRowsFit: number;
+    page: number;
+    prevVariableValues: Record<string, any>;
+    sort: OrderBy[];
+  }
 >(Component, meta, {
   props: (inputs: Inputs<typeof meta>, [state]) => {
     const currVariableValues = inputs?.ds?.variableValues || {};
@@ -116,7 +130,7 @@ export default defineComponent<
     const limit =
       inputs.maxPageRows || state?.maxRowsFit
         ? Math.min(inputs.maxPageRows || 1000, Math.max(state?.maxRowsFit, 1) || 1000)
-        : 1;
+        : 0;
 
     const defaultSortDirection =
       // @ts-expect-error - defaultSortDirection.value is added by defineComponent.
@@ -143,18 +157,35 @@ export default defineComponent<
       state.page = 0;
     }
 
+    // Results are per page - no need to get the entire dataset to show one page
+    const results =
+      limit < 1
+        ? { isLoading: true }
+        : loadData({
+            from: inputs.ds,
+            dimensions: (inputs.columns?.filter((c) => isDimension(c)) as Dimension[]) || [],
+            measures: (inputs.columns?.filter((c) => isMeasure(c)) as Measure[]) || [],
+            limit,
+            offset: limit * (state?.page || 0),
+            orderBy: state?.sort || defaultSort,
+          });
+
+    // All results get loaded when the download all button is clicked (otherwise they return empty)
+    const allResults = loadData({
+      from: inputs.ds,
+      dimensions: (inputs.columns?.filter((c) => isDimension(c)) as Dimension[]) || [],
+      measures: (inputs.columns?.filter((c) => isMeasure(c)) as Measure[]) || [],
+      limit: state?.downloadAll ? 10_000 : 0,
+      offset: 0,
+      orderBy: state?.sort || defaultSort,
+    });
+
     return {
       ...inputs,
       limit,
       defaultSort,
-      results: loadData({
-        from: inputs.ds,
-        dimensions: (inputs.columns?.filter((c) => isDimension(c)) as Dimension[]) || [],
-        measures: (inputs.columns?.filter((c) => isMeasure(c)) as Measure[]) || [],
-        limit,
-        offset: limit * (state?.page || 0),
-        orderBy: state?.sort || defaultSort,
-      }),
+      results,
+      allResults,
     };
   },
 });

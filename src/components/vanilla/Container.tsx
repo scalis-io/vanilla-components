@@ -10,19 +10,7 @@ import Spinner from './Spinner';
 import Title from './Title';
 import { WarningIcon } from './icons';
 import './index.css';
-
-export type ContainerProps = {
-  childContainerClassName?: string;
-  className?: string;
-  description?: string;
-  enableDownloadAsCSV?: boolean;
-  enableDownloadAsPNG?: boolean;
-  onResize?: (size: Size) => void;
-  prevResults?: DataResponse;
-  results?: DataResponse | DataResponse[];
-  setResizeState?: (resizing: boolean) => void;
-  title?: string;
-};
+import { ContainerProps } from './Container.types';
 
 export default ({
   children,
@@ -126,6 +114,7 @@ export default ({
               prevResults: props.prevResults,
             },
           }}
+          downloadAllFunction={props.downloadAllFunction}
           enableDownloadAsCSV={props.enableDownloadAsCSV}
           enableDownloadAsPNG={props.enableDownloadAsPNG}
           pngOpts={{ chartName: props.title || 'chart', element: refExportPNGElement.current }}
