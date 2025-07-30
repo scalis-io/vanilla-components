@@ -29,6 +29,10 @@ cubes:
       - name: value
         sql: '{CUBE}.value'
         type: string
+      # Cast value based on field type
+      - name: value_as_timestamp
+        sql: "CASE WHEN {custom_candidate_application_field.type} = 'DATE' THEN CAST({CUBE}.value AS TIMESTAMP) ELSE NULL END"
+        type: time
       - name: companyuserid
         sql: '{CUBE}.company_user_id'
         type: number
