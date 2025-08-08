@@ -2,6 +2,9 @@ cubes:
   - name: company_user
     sql_table: company_user
     joins:
+      - name: candidate_source
+        sql: '{CUBE}.id = {candidate_source}.credit_company_user_id'
+        relationship: one_to_many
       - name: company
         sql: '{CUBE}.company_id = {company}.id'
         relationship: many_to_one
@@ -22,6 +25,9 @@ cubes:
         relationship: one_to_many
       - name: custom_candidate_profile_field_value
         sql: '{CUBE}.id = {custom_candidate_profile_field_value}.company_user_id'
+        relationship: one_to_many
+      - name: custom_source_category
+        sql: '{CUBE}.id = {custom_source_category}.company_user_id'
         relationship: one_to_many
       - name: custom_candidate_application_field
         sql: '{CUBE}.id = {custom_candidate_application_field}.company_user_id'

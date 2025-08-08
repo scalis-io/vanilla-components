@@ -52,3 +52,6 @@ cubes:
       - name: updatedat
         sql: '{CUBE}.updated_at'
         type: time
+      - name: aisourcingcandidateid
+        sql: '{CUBE}.ai_sourcing_candidate_id'
+        type: string

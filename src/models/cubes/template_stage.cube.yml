@@ -25,6 +25,9 @@ cubes:
       - name: visibility
         sql: "{CUBE}.visibility"
         type: string
+      - name: stagetype
+        sql: "{CUBE}.stage_type"
+        type: string
       - name: name
         sql: "{CUBE}.name"
         type: string
