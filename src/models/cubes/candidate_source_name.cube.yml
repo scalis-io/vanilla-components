@@ -1,0 +1,33 @@
+cubes:
+  - name: candidate_source_name
+    sql_table: candidate_source_name
+    joins:
+      - name: company
+        sql: "{CUBE}.company_id = {company}.id"
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: sourcecategory
+        sql: "{CUBE}.source_category"
+        type: string
+      - name: name
+        sql: "{CUBE}.name"
+        type: string
+      - name: companyid
+        sql: "{CUBE}.company_id"
+        type: number
+      - name: customsourcecategoryid
+        sql: "{CUBE}.custom_source_category_id"
+        type: number
+      - name: createdat
+        sql: "{CUBE}.created_at"
+        type: time
+      - name: updatedat
+        sql: "{CUBE}.updated_at"
+        type: time
