@@ -2,6 +2,9 @@ cubes:
   - name: candidate_source
     sql_table: candidate_source
     joins:
+      - name: job_listing
+        sql: '{CUBE}.job_listing_id = {job_listing}.id'
+        relationship: many_to_one
       - name: candidate_application
         sql: '{CUBE}.candidate_application_id = {candidate_application}.id'
         relationship: many_to_one
@@ -10,9 +13,6 @@ cubes:
         relationship: many_to_one
       - name: company_user
         sql: '{CUBE}.credit_company_user_id = {company_user}.id'
-        relationship: many_to_one
-      - name: job_listing
-        sql: '{CUBE}.job_listing_id = {job_listing}.id'
         relationship: many_to_one
       - name: profile_details
         sql: '{CUBE}.profile_details_id = {profile_details}.id'
