@@ -1,6 +1,6 @@
 cubes:
-  - name: custom_source_category
-    sql_table: custom_source_category
+  - name: source_category
+    sql_table: source_category
     joins:
       - name: company
         sql: '{CUBE}.company_id = {company}.id'
@@ -8,8 +8,8 @@ cubes:
       - name: company_user
         sql: '{CUBE}.company_user_id = {company_user}.id'
         relationship: many_to_one
-      - name: candidate_source_name
-        sql: '{CUBE}.id = {candidate_source_name}.custom_source_category_id'
+      - name: source_name
+        sql: '{CUBE}.id = {source_name}.source_category_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -31,6 +31,9 @@ cubes:
       - name: externalid
         sql: '{CUBE}.external_id'
         type: string
+      - name: isdefault
+        sql: '{CUBE}.is_default'
+        type: boolean
       - name: createdat
         sql: '{CUBE}.created_at'
         type: time
