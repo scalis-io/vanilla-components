@@ -1,0 +1,64 @@
+cubes:
+  - name: survey_form
+    sql_table: public.survey_form
+    data_source: default
+
+    joins:
+      - name: survey_form_template
+        sql: "{CUBE}.survey_form_template_id = {survey_form_template.id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+
+      - name: is_anonymous
+        sql: is_anonymous
+        type: boolean
+
+      - name: is_deleted
+        sql: is_deleted
+        type: boolean
+
+      - name: survey_form_completion_status
+        sql: survey_form_completion_status
+        type: string
+
+      - name: survey_form_delivery_status
+        sql: survey_form_delivery_status
+        type: string
+
+      - name: uuid
+        sql: uuid
+        type: string
+
+      - name: created_at
+        sql: created_at
+        type: time
+
+      - name: updated_at
+        sql: updated_at
+        type: time
+
+      - name: expiration_date
+        sql: expiration_date
+        type: time
+
+      - name: responded_at
+        sql: responded_at
+        type: time
+
+    measures:
+      - name: count
+        type: count
+
+      - name: attempt_number
+        sql: attempt_number
+        type: sum
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
+

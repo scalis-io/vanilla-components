@@ -1,0 +1,96 @@
+cubes:
+  - name: survey_form_question_template
+    sql_table: public.survey_form_question_template
+    data_source: default
+
+    joins:
+      - name: survey_form_template
+        sql: "{CUBE}.survey_form_template_id = {survey_form_template.id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+
+      - name: add_rating_labels
+        sql: add_rating_labels
+        type: boolean
+
+      - name: answer_options
+        sql: answer_options
+        type: string
+
+      - name: enable_comment_field
+        sql: enable_comment_field
+        type: boolean
+
+      - name: is_deleted
+        sql: is_deleted
+        type: boolean
+
+      - name: is_edited
+        sql: is_edited
+        type: boolean
+
+      - name: is_required
+        sql: is_required
+        type: boolean
+
+      - name: is_template
+        sql: is_template
+        type: boolean
+
+      - name: manual_review_score
+        sql: manual_review_score
+        type: boolean
+
+      - name: question
+        sql: question
+        type: string
+
+      - name: question_comment
+        sql: question_comment
+        type: string
+
+      - name: question_description
+        sql: question_description
+        type: string
+
+      - name: question_type
+        sql: question_type
+        type: string
+
+      - name: rating_shape
+        sql: rating_shape
+        type: string
+
+      - name: score_answer
+        sql: score_answer
+        type: boolean
+
+      - name: selection_display
+        sql: selection_display
+        type: string
+
+      - name: created_at
+        sql: created_at
+        type: time
+
+      - name: updated_at
+        sql: updated_at
+        type: time
+
+    measures:
+      - name: count
+        type: count
+
+      - name: page_number
+        sql: page_number
+        type: sum
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
+
