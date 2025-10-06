@@ -1,32 +1,24 @@
 cubes:
   - name: survey_form_template
-    sql_table: public.survey_form_template
-    data_source: default
-
+    sql_table: survey_form_template
     joins: []
-
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-
       - name: accepting_responses
         sql: accepting_responses
         type: boolean
-
       - name: allow_retakes
         sql: allow_retakes
         type: boolean
-
       - name: allow_save_and_resume
         sql: allow_save_and_resume
         type: boolean
-
       - name: anonymous_mode
         sql: anonymous_mode
         type: boolean
-
       - name: assign_grader
         sql: assign_grader
         type: boolean
@@ -34,68 +26,48 @@ cubes:
       - name: expiration_type
         sql: expiration_type
         type: string
-
       - name: form_audience
         sql: form_audience
         type: string
-
       - name: form_description
         sql: form_description
         type: string
-
       - name: form_title
         sql: form_title
         type: string
-
       - name: form_type
         sql: form_type
         type: string
-
       - name: is_archived
         sql: is_archived
         type: boolean
-
       - name: is_deleted
         sql: is_deleted
         type: boolean
-
       - name: is_draft
         sql: is_draft
         type: boolean
-
       - name: redirect_url
         sql: redirect_url
         type: string
-
       - name: send_response_copy
         sql: send_response_copy
         type: boolean
-
       - name: send_submission_notification
         sql: send_submission_notification
         type: boolean
-
       - name: survey_page_details
         sql: survey_page_details
         type: string
-
       - name: uuid
         sql: uuid
         type: string
-
       - name: created_at
         sql: created_at
         type: time
-
       - name: updated_at
         sql: updated_at
         type: time
-
     measures:
       - name: count
         type: count
-
-    pre_aggregations:
-      # Pre-aggregation definitions go here.
-      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
-
