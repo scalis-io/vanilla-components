@@ -70,6 +70,9 @@ cubes:
       - name: maxpay
         sql: '{CUBE}.max_pay'
         type: number
+      - name: paycurrency
+        sql: '{CUBE}.pay_currency'
+        type: string
       - name: additionalcomp
         sql: '{CUBE}.additional_comp'
         type: string
@@ -115,6 +118,9 @@ cubes:
       - name: isincomplete
         sql: '{CUBE}.is_incomplete'
         type: boolean
+      - name: candidatefilters
+        sql: '{CUBE}.candidate_filters'
+        type: string
       - name: openedat
         sql: '{CUBE}.opened_at'
         type: time

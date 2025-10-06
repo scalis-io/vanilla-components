@@ -1,0 +1,63 @@
+cubes:
+  - name: source_tracking_link
+    sql_table: source_tracking_link
+    joins:
+      - name: job_listing
+        sql: '{CUBE}.job_listing_id = {job_listing}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: source_name
+        sql: '{CUBE}.source_name_id = {source_name}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: joblistingid
+        sql: '{CUBE}.job_listing_id'
+        type: number
+      - name: genericlistinglink
+        sql: '{CUBE}.generic_listing_link'
+        type: boolean
+      - name: name
+        sql: '{CUBE}.name'
+        type: string
+      - name: shortcode
+        sql: '{CUBE}.short_code'
+        type: string
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: whogetscredit
+        sql: '{CUBE}.who_gets_credit'
+        type: number
+      - name: sourcenameid
+        sql: '{CUBE}.source_name_id'
+        type: number
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
+      - name: countviews
+        sql: '{CUBE}.count_views'
+        type: number
+      - name: countuniqueviews
+        sql: '{CUBE}.count_unique_views'
+        type: number
+      - name: countclickstoapply
+        sql: '{CUBE}.count_clicks_to_apply'
+        type: number
+      - name: countapplies
+        sql: '{CUBE}.count_applies'
+        type: number

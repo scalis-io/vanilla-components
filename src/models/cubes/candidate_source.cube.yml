@@ -1,0 +1,51 @@
+cubes:
+  - name: candidate_source
+    sql_table: candidate_source
+    joins:
+      - name: candidate_application
+        sql: '{CUBE}.candidate_application_id = {candidate_application}.id'
+        relationship: many_to_one
+      - name: source_name
+        sql: '{CUBE}.source_name_id = {source_name}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.credit_company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: candidate_profile
+        sql: '{CUBE}.candidate_profile_id = {candidate_profile}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: candidateprofileid
+        sql: '{CUBE}.candidate_profile_id'
+        type: number
+      - name: sourcenameid
+        sql: '{CUBE}.source_name_id'
+        type: number
+      - name: sourcestrategy
+        sql: '{CUBE}.source_strategy'
+        type: number
+      - name: creditcompanyuserid
+        sql: '{CUBE}.credit_company_user_id'
+        type: number
+      - name: creditexternal
+        sql: '{CUBE}.credit_external'
+        type: string
+      - name: candidateapplicationid
+        sql: '{CUBE}.candidate_application_id'
+        type: number
+      - name: campaignid
+        sql: '{CUBE}.campaign_id'
+        type: number
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
