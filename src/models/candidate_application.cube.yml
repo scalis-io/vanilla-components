@@ -17,6 +17,9 @@ cubes:
       - name: job_opening
         sql: '{CUBE}.id = {job_opening}.filled_by_application'
         relationship: one_to_many
+      - name: candidate_source
+        sql: '{CUBE}.id = {candidate_source}.candidate_application_id'
+        relationship: one_to_many
       - name: candidate_application_status
         sql: '{CUBE}.id = {candidate_application_status}.candidate_application_id'
         relationship: one_to_many

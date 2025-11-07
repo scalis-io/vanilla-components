@@ -36,8 +36,8 @@ cubes:
       - name: user_invitation
         sql: '{CUBE}.id = {user_invitation}.company_id'
         relationship: one_to_many
-      - name: candidate_source_name
-        sql: '{CUBE}.id = {candidate_source_name}.company_id'
+      - name: source_name
+        sql: '{CUBE}.id = {source_name}.company_id'
         relationship: one_to_many
       - name: custom_application_status
         sql: '{CUBE}.id = {custom_application_status}.company_id'
@@ -47,6 +47,9 @@ cubes:
         relationship: one_to_many
       - name: custom_candidate_application_field
         sql: '{CUBE}.id = {custom_candidate_application_field}.company_id'
+        relationship: one_to_many
+      - name: source_category
+        sql: '{CUBE}.id = {source_category}.company_id'
         relationship: one_to_many
     measures:
       - name: count
@@ -75,4 +78,7 @@ cubes:
         type: string
       - name: currency
         sql: '{CUBE}.currency'
+        type: string
+      - name: linkedinid
+        sql: '{CUBE}.linkedin_id'
         type: string
