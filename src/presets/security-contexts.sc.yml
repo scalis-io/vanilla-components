@@ -1,3 +1,7 @@
+# Security Context is private info that can be used to customize the embeddable experience.
+# This context is only accessible within Cube models and enables row-level security. Note
+# that this file is only used by the builder.
+# See https://docs.embeddable.com/data-modeling/row-level-security
 - name: staging (no security context)
   environment: stg
   securityContext:

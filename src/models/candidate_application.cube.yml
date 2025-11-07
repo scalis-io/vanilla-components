@@ -1,0 +1,97 @@
+cubes:
+  - name: candidate_application
+    sql_table: candidate_application
+    joins:
+      - name: candidate_profile
+        sql: '{CUBE}.candidate_profile_id = {candidate_profile}.id'
+        relationship: many_to_one
+      - name: company
+        sql: '{CUBE}.company_id = {company}.id'
+        relationship: many_to_one
+      - name: job_listing
+        sql: '{CUBE}.job_listing_id = {job_listing}.id'
+        relationship: many_to_one
+      - name: template_stage
+        sql: '{CUBE}.template_stage_id = {template_stage}.id'
+        relationship: many_to_one
+      - name: job_opening
+        sql: '{CUBE}.id = {job_opening}.filled_by_application'
+        relationship: one_to_many
+      - name: candidate_source
+        sql: '{CUBE}.id = {candidate_source}.candidate_application_id'
+        relationship: one_to_many
+      - name: candidate_application_status
+        sql: '{CUBE}.id = {candidate_application_status}.candidate_application_id'
+        relationship: one_to_many
+      - name: custom_application_status
+        sql: '{CUBE}.custom_application_status_id = {custom_application_status}.id'
+        relationship: many_to_one
+      - name: custom_candidate_application_field_value
+        sql: '{CUBE}.id =
+          {custom_candidate_application_field_value}.candidate_application_id'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: candidateprofileid
+        sql: '{CUBE}.candidate_profile_id'
+        type: number
+      - name: applicationtype
+        sql: '{CUBE}.application_type'
+        type: string
+      - name: applicationstatus
+        sql: '{CUBE}.application_status'
+        type: string
+      - name: joblistingid
+        sql: '{CUBE}.job_listing_id'
+        type: number
+      - name: templatestageid
+        sql: '{CUBE}.template_stage_id'
+        type: number
+      - name: applicationtimestamp
+        sql: '{CUBE}.application_timestamp'
+        type: time
+      - name: companyid
+        sql: '{CUBE}.company_id'
+        type: number
+      - name: viewedprofile
+        sql: '{CUBE}.viewed_profile'
+        type: boolean
+      - name: matchscore
+        sql: '{CUBE}.match_score'
+        type: number
+      - name: lastupdatedstatusat
+        sql: '{CUBE}.last_updated_status_at'
+        type: time
+      - name: applicationcreationtype
+        sql: '{CUBE}.application_creation_type'
+        type: string
+      - name: interviewscheduling
+        sql: '{CUBE}.interview_scheduling'
+        type: string
+      - name: viewedat
+        sql: '{CUBE}.viewed_at'
+        type: time
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
+      - name: appliedat
+        sql: '{CUBE}.applied_at'
+        type: time
+      - name: deleted
+        sql: '{CUBE}.deleted'
+        type: time
+      - name: duplicationstatus
+        sql: '{CUBE}.duplication_status'
+        type: string
+      - name: customapplicationstatusid
+        sql: '{CUBE}.custom_application_status_id'
+        type: number

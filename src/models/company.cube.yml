@@ -1,0 +1,84 @@
+cubes:
+  - name: company
+    # sql_table: company
+    sql: >
+      SELECT * FROM company
+      {% if COMPILE_CONTEXT.securityContext.companyId %}
+        WHERE company.id = '{ COMPILE_CONTEXT.securityContext.companyId }'
+      {% else %}
+        WHERE 1 = 1
+      {% endif %}
+    joins:
+      - name: candidate_application
+        sql: '{CUBE}.id = {candidate_application}.company_id'
+        relationship: one_to_many
+      - name: candidate_profile
+        sql: '{CUBE}.id = {candidate_profile}.company_id'
+        relationship: one_to_many
+      - name: company_department
+        sql: '{CUBE}.id = {company_department}.company_id'
+        relationship: one_to_many
+      - name: company_office
+        sql: '{CUBE}.id = {company_office}.company_id'
+        relationship: one_to_many
+      - name: company_user
+        sql: '{CUBE}.id = {company_user}.company_id'
+        relationship: one_to_many
+      - name: job_opening
+        sql: '{CUBE}.id = {job_opening}.company_id'
+        relationship: one_to_many
+      - name: requisition
+        sql: '{CUBE}.id = {requisition}.company_id'
+        relationship: one_to_many
+      - name: template_pipeline
+        sql: '{CUBE}.id = {template_pipeline}.company_id'
+        relationship: one_to_many
+      - name: user_invitation
+        sql: '{CUBE}.id = {user_invitation}.company_id'
+        relationship: one_to_many
+      - name: source_name
+        sql: '{CUBE}.id = {source_name}.company_id'
+        relationship: one_to_many
+      - name: custom_application_status
+        sql: '{CUBE}.id = {custom_application_status}.company_id'
+        relationship: one_to_many
+      - name: custom_candidate_profile_field
+        sql: '{CUBE}.id = {custom_candidate_profile_field}.company_id'
+        relationship: one_to_many
+      - name: custom_candidate_application_field
+        sql: '{CUBE}.id = {custom_candidate_application_field}.company_id'
+        relationship: one_to_many
+      - name: source_category
+        sql: '{CUBE}.id = {source_category}.company_id'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        # !IMPORTANT! this is a public dimension, it will be used to filter the company
+        public: true
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
+      - name: lastactivity
+        sql: '{CUBE}.last_activity'
+        type: time
+      - name: externalid
+        sql: '{CUBE}.external_id'
+        type: string
+      - name: subdomain
+        sql: '{CUBE}.subdomain'
+        type: string
+      - name: currency
+        sql: '{CUBE}.currency'
+        type: string
+      - name: linkedinid
+        sql: '{CUBE}.linkedin_id'
+        type: string

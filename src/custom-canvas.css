@@ -137,7 +137,9 @@
 
 /* avoid showing the control container when there is a dragging going on */
 .self-serve-widgets:has(.sortable-drag) .draggable.sortable .draggable-controls,
-.self-serve-widgets:has(.sortable-ghost) .draggable.sortable .draggable-controls {
+.self-serve-widgets:has(.sortable-ghost)
+  .draggable.sortable
+  .draggable-controls {
 }
 
 /* Modal Related */

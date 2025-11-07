@@ -34,37 +34,37 @@ const connections = [
 const dbType = 'postgres'; // or bigquery, etc.
 
 /**
- * see db-specific examples @ https://trevorio.notion.site/Connections-API-ff4af10f7eaf4288b6952fde04e6e933
+ * see db-specific examples @ https://docs.embeddable.com/data/credentials
  */
 async function updateConnection(connection) {
-    const resp = await fetch(`https://${BASE_URL}/api/v1/connections/${connection.connectionName}`, {
-        method: 'PUT', // PUT = UPDATE
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${apiKey}` /* keep your API Key secure */
-        },
-        body: JSON.stringify({
-            type: dbType,
-            credentials: {
-                host: connection.host,
-                database: connection.database,
-                user: connection.user,
-                password: connection.password,
-                port: connection.port
-            }
-        })
-    });
+  const resp = await fetch(`https://${BASE_URL}/api/v1/connections/${connection.connectionName}`, {
+      method: 'PUT', // PUT = UPDATE
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${apiKey}` /* keep your API Key secure */
+      },
+      body: JSON.stringify({
+          type: dbType,
+          credentials: {
+              host: connection.host,
+              database: connection.database,
+              user: connection.user,
+              password: connection.password,
+              port: connection.port
+          }
+      })
+  });
 
-    console.log(`${resp.status} ${resp.statusText}`);
-    const json = await resp.json();
-    console.log(json);
+  console.log(`${resp.status} ${resp.statusText}`);
+  const json = await resp.json();
+  console.log(json);
 }
 
 async function run() {
-    for (const connection of connections) {
-        await updateConnection(connection);
-    }
+  for (const connection of connections) {
+      await updateConnection(connection);
+  }
 }
 
 run();

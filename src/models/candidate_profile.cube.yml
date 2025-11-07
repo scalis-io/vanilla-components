@@ -1,0 +1,72 @@
+cubes:
+  - name: candidate_profile
+    sql_table: candidate_profile
+    joins:
+      - name: candidate_application
+        sql: '{CUBE}.id = {candidate_application}.candidate_profile_id'
+        relationship: one_to_many
+      - name: company
+        sql: '{CUBE}.company_id = {company}.id'
+        relationship: many_to_one
+      - name: scalis_user
+        sql: '{CUBE}.scalis_user_id = {scalis_user}.id'
+        relationship: many_to_one
+      # - name: job_opening
+      #   sql: '{CUBE}.id = {job_opening}.filled_by_candidate'
+      #   relationship: one_to_many
+      - name: custom_candidate_profile_field_value
+        sql: '{CUBE}.id = {custom_candidate_profile_field_value}.candidate_profile_id'
+        relationship: one_to_many
+      - name: candidate_source
+        sql: '{CUBE}.id = {candidate_source}.candidate_profile_id'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: uploadedcandidateid
+        sql: '{CUBE}.uploaded_candidate_id'
+        type: number
+      - name: companyid
+        sql: '{CUBE}.company_id'
+        type: number
+      - name: scalisuserid
+        sql: '{CUBE}.scalis_user_id'
+        type: number
+      - name: primaryemail
+        sql: '{CUBE}.primary_email'
+        type: string
+      - name: donotcontact
+        sql: '{CUBE}.do_not_contact'
+        type: boolean
+      - name: profiletype
+        sql: '{CUBE}.profile_type'
+        type: string
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
+      - name: aisourcingcandidateid
+        sql: '{CUBE}.ai_sourcing_candidate_id'
+        type: string
+      - name: phonenumber
+        sql: '{CUBE}.phone_number'
+        type: string
+      - name: profilelink
+        sql: '{CUBE}.profile_link'
+        type: string
+      - name: timezone
+        sql: '{CUBE}.timezone'
+        type: string
+      - name: secondaryemail
+        sql: '{CUBE}.secondary_email'
+        type: string

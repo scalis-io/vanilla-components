@@ -6,7 +6,7 @@ secrets:
 	@echo "Config file generated successfully"
 
 connection-list:
-	@node connection-read.mjs
+	@node connection-list.mjs
 
 connection-read:
 	@node connection-read.mjs
@@ -19,7 +19,7 @@ connection-update:
 
 
 environment-list:
-	@node environment-read.mjs
+	@node environment-list.mjs
 
 environment-read:
 	@node environment-read.mjs
