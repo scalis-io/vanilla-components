@@ -3,21 +3,31 @@ cubes:
     sql_table: survey_form_question_answer
     joins:
       - name: survey_form
-        sql: '{CUBE}.survey_form_id = {survey_form.id}'
+        sql: '{CUBE}.survey_form_id = {survey_form}.id'
         relationship: many_to_one
       - name: survey_form_question_template
-        sql: '{CUBE}.survey_form_question_template_id = {survey_form_question_template.id}'
+        sql: '{CUBE}.survey_form_question_template_id =
+          {survey_form_question_template}.id'
         relationship: many_to_one
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
+      - name: surveyformid
+        sql: '{CUBE}.survey_form_id'
+        type: number
+      - name: surveyformquestiontemplateid
+        sql: '{CUBE}.survey_form_question_template_id'
+        type: number
       - name: answer
-        sql: answer
+        sql: '{CUBE}.answer'
         type: string
       - name: answer_type
-        sql: "{CUBE}.answer ->> 'type'"
+        sql: '{CUBE}.answer ->> "type"'
         type: string
       - name: answer_value
         sql: |
@@ -33,12 +43,9 @@ cubes:
             ELSE NULL
           END
         type: string
-      - name: created_at
-        sql: created_at
+      - name: createdat
+        sql: '{CUBE}.created_at'
         type: time
-      - name: updated_at
-        sql: updated_at
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
         type: time
-    measures:
-      - name: count
-        type: count
