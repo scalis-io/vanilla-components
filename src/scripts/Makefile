@@ -11,6 +11,12 @@ connection-list:
 connection-read:
 	@node connection-read.mjs
 
+connection-create:
+	@node connection-create.mjs
+
+connection-delete:
+	@node connection-delete.mjs
+
 connection-test:
 	@node connection-test.mjs
 
@@ -26,6 +32,9 @@ environment-read:
 
 environment-create:
 	@node environment-create.mjs
+
+environment-delete:
+	@node environment-delete.mjs
 
 environment-update:
 	@node environment-update.mjs

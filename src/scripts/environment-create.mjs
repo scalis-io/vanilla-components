@@ -5,7 +5,6 @@ loadEnvConfig();
 
 const apiKey = process.env.API_KEY;
 const BASE_URL = process.env.BASE_URL;
-// const BASE_URL = 'https://api.eu.embeddable.com'; // EU API
 
 const environments = [
     {
