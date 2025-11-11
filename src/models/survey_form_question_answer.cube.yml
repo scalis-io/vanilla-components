@@ -2,12 +2,11 @@ cubes:
   - name: survey_form_question_answer
     sql_table: survey_form_question_answer
     joins:
+      - name: survey_form_question_template
+        sql: '{CUBE}.survey_form_question_template_id = {survey_form_question_template}.id'
+        relationship: many_to_one
       - name: survey_form
         sql: '{CUBE}.survey_form_id = {survey_form}.id'
-        relationship: many_to_one
-      - name: survey_form_question_template
-        sql: '{CUBE}.survey_form_question_template_id =
-          {survey_form_question_template}.id'
         relationship: many_to_one
     measures:
       - name: count

@@ -1,6 +1,13 @@
 cubes:
   - name: survey_form_question_template
-    sql_table: survey_form_question_template
+    # sql_table: survey_form_question_template
+    sql: >
+      SELECT * FROM survey_form_question_template
+      {% if COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId %}
+        WHERE survey_form_question_template.id = '{ COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId }'
+      {% else %}
+        WHERE 1 = 1
+      {% endif %}
     joins:
       - name: survey_form_template
         sql: '{CUBE}.survey_form_template_id = {survey_form_template}.id'
