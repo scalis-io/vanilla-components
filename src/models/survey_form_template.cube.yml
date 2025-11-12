@@ -9,7 +9,7 @@ cubes:
         sql: '{CUBE}.company_user_id = {company_user}.id'
         relationship: many_to_one
       - name: survey_form_question_template
-        sql: '{CUBE}.id = {questions}.survey_form_template_id'
+        sql: '{CUBE}.id = {survey_form_question_template}.survey_form_template_id'
         relationship: one_to_many
       - name: survey_form
         sql: '{CUBE}.id = {survey_form}.survey_form_template_id'
