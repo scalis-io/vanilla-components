@@ -1,6 +1,14 @@
 cubes:
   - name: survey_form_question_answer
-    sql_table: survey_form_question_answer
+    # sql_table: survey_form_question_answer
+    sql: |
+      SELECT
+        a.*,
+        COALESCE(opt.value, NULL) AS multiple_select_value
+      FROM survey_form_question_answer a
+      LEFT JOIN LATERAL (
+        SELECT jsonb_array_elements_text(a.answer -> 'selectedOptions') AS value
+      ) AS opt ON (a.answer ->> 'type') = 'MULTIPLE_SELECT'
     joins:
       - name: survey_form_question_template
         sql: '{CUBE}.survey_form_question_template_id = {survey_form_question_template}.id'
@@ -33,14 +41,46 @@ cubes:
           CASE
             WHEN {CUBE}.answer ->> 'type' IN ('SHORT_ANSWER', 'PARAGRAPH', 'NUMBER_SCALE', 'NUMERICAL', 'DATE', 'URL', 'EMAIL', 'PHONE')
               THEN {CUBE}.answer ->> 'value'
-            WHEN {CUBE}.answer ->> 'type' IN ('SINGLE_SELECT', 'YES_NO')
-              THEN {CUBE}.answer ->> 'selectedOption'
+            WHEN {CUBE}.answer ->> 'type' = 'YES_NO'
+              THEN CASE
+                WHEN lower({CUBE}.answer ->> 'selectedOption') = 'yes' THEN 'Yes'
+                WHEN lower({CUBE}.answer ->> 'selectedOption') = 'no' THEN 'No'
+                ELSE {CUBE}.answer ->> 'selectedOption'
+              END
+            WHEN {CUBE}.answer ->> 'type' = 'SINGLE_SELECT'
+              THEN (
+                SELECT opt ->> 'text'
+                FROM survey_form_question_template,
+                    jsonb_array_elements(survey_form_question_template.answer_options -> 'options') AS opt
+                WHERE survey_form_question_template.id = {CUBE}.survey_form_question_template_id
+                  AND opt ->> 'id' = ({CUBE}.answer ->> 'selectedOption')
+                LIMIT 1
+              )
             WHEN {CUBE}.answer ->> 'type' = 'MULTIPLE_SELECT'
-              THEN {CUBE}.answer ->> 'selectedOptions'
+              THEN (
+                SELECT opt ->> 'text'
+                FROM survey_form_question_template,
+                    jsonb_array_elements(survey_form_question_template.answer_options -> 'options') AS opt
+                WHERE survey_form_question_template.id = {CUBE}.survey_form_question_template_id
+                  AND opt ->> 'id' = {CUBE}.multiple_select_value
+                LIMIT 1
+              )
             WHEN {CUBE}.answer ->> 'type' = 'RATING'
-              THEN {CUBE}.answer ->> 'rating'
+              THEN COALESCE(
+                (
+                  SELECT labels ->> (CAST(({CUBE}.answer ->> 'rating') AS int) - 1)
+                  FROM (
+                    SELECT (survey_form_question_template.answer_options -> 'labels') AS labels
+                    FROM survey_form_question_template
+                    WHERE survey_form_question_template.id = {CUBE}.survey_form_question_template_id
+                      AND (survey_form_question_template.answer_options -> 'labels') IS NOT NULL
+                    LIMIT 1
+                  ) t
+                ),
+                {CUBE}.answer ->> 'rating'
+              )
             WHEN {CUBE}.answer ->> 'type' = 'FILE_UPLOAD'
-              THEN ({CUBE}.answer -> 'files' -> 0 ->> 'fileUrl')
+              THEN ({CUBE}.answer -> 'files' -> 0 ->> 'fileName')
             ELSE NULL
           END
         type: string
