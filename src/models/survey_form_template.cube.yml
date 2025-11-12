@@ -1,73 +1,102 @@
 cubes:
   - name: survey_form_template
     sql_table: survey_form_template
-    joins: []
+    joins:
+      - name: company
+        sql: '{CUBE}.company_id = {company}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: survey_form_question_template
+        sql: '{CUBE}.id = {survey_form_question_template}.survey_form_template_id'
+        relationship: one_to_many
+      - name: survey_form
+        sql: '{CUBE}.id = {survey_form}.survey_form_template_id'
+        relationship: one_to_many
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-      - name: accepting_responses
-        sql: accepting_responses
-        type: boolean
-      - name: allow_retakes
-        sql: allow_retakes
-        type: boolean
-      - name: allow_save_and_resume
-        sql: allow_save_and_resume
-        type: boolean
-      - name: anonymous_mode
-        sql: anonymous_mode
-        type: boolean
-      - name: assign_grader
-        sql: assign_grader
-        type: boolean
-
-      - name: expiration_type
-        sql: expiration_type
-        type: string
-      - name: form_audience
-        sql: form_audience
-        type: string
-      - name: form_description
-        sql: form_description
-        type: string
-      - name: form_title
-        sql: form_title
-        type: string
-      - name: form_type
-        sql: form_type
-        type: string
-      - name: is_archived
-        sql: is_archived
-        type: boolean
-      - name: is_deleted
-        sql: is_deleted
-        type: boolean
-      - name: is_draft
-        sql: is_draft
-        type: boolean
-      - name: redirect_url
-        sql: redirect_url
-        type: string
-      - name: send_response_copy
-        sql: send_response_copy
-        type: boolean
-      - name: send_submission_notification
-        sql: send_submission_notification
-        type: boolean
-      - name: survey_page_details
-        sql: survey_page_details
-        type: string
       - name: uuid
-        sql: uuid
+        sql: '{CUBE}.uuid'
         type: string
-      - name: created_at
-        sql: created_at
+      - name: companyid
+        sql: '{CUBE}.company_id'
+        type: number
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: formtype
+        sql: '{CUBE}.form_type'
+        type: string
+      - name: formtitle
+        sql: '{CUBE}.form_title'
+        type: string
+      - name: formaudience
+        sql: '{CUBE}.form_audience'
+        type: string
+      - name: formdescription
+        sql: '{CUBE}.form_description'
+        type: string
+      - name: anonymousmode
+        sql: '{CUBE}.anonymous_mode'
+        type: boolean
+      - name: sendresponsecopy
+        sql: '{CUBE}.send_response_copy'
+        type: boolean
+      - name: sendsubmissionnotification
+        sql: '{CUBE}.send_submission_notification'
+        type: boolean
+      - name: acceptingresponses
+        sql: '{CUBE}.accepting_responses'
+        type: boolean
+      - name: assigngrader
+        sql: '{CUBE}.assign_grader'
+        type: boolean
+      - name: isdraft
+        sql: '{CUBE}.is_draft'
+        type: boolean
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean
+      - name: isarchived
+        sql: '{CUBE}.is_archived'
+        type: boolean
+      - name: visibility
+        sql: '{CUBE}.visibility'
+        type: string
+      - name: redirecturl
+        sql: '{CUBE}.redirect_url'
+        type: string
+      - name: allowsaveandresume
+        sql: '{CUBE}.allow_save_and_resume'
+        type: boolean
+      - name: allowretakes
+        sql: '{CUBE}.allow_retakes'
+        type: boolean
+      - name: totalretakesallowed
+        sql: '{CUBE}.total_retakes_allowed'
+        type: number
+      - name: expirationtype
+        sql: '{CUBE}.expiration_type'
+        type: string
+      - name: customexpirationhourslength
+        sql: '{CUBE}.custom_expiration_hours_length'
+        type: number
+      - name: totalpointsavailable
+        sql: '{CUBE}.total_points_available'
+        type: number
+      - name: surveypagedetails
+        sql: '{CUBE}.survey_page_details'
+        type: string
+      - name: createdat
+        sql: '{CUBE}.created_at'
         type: time
-      - name: updated_at
-        sql: updated_at
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
         type: time
-    measures:
-      - name: count
-        type: count

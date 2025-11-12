@@ -3,43 +3,73 @@ cubes:
     sql_table: survey_form
     joins:
       - name: survey_form_template
-        sql: '{CUBE}.survey_form_template_id = {survey_form_template.id}'
+        sql: '{CUBE}.survey_form_template_id = {survey_form_template}.id'
         relationship: many_to_one
+      - name: candidate_application
+        sql: '{CUBE}.candidate_application_id = {candidate_application}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: candidate_profile
+        sql: '{CUBE}.candidate_profile_id = {candidate_profile}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-      - name: is_anonymous
-        sql: is_anonymous
-        type: boolean
-      - name: is_deleted
-        sql: is_deleted
-        type: boolean
-      - name: survey_form_completion_status
-        sql: survey_form_completion_status
-        type: string
-      - name: survey_form_delivery_status
-        sql: survey_form_delivery_status
-        type: string
       - name: uuid
-        sql: uuid
+        sql: '{CUBE}.uuid'
         type: string
-      - name: created_at
-        sql: created_at
+      - name: candidateapplicationid
+        sql: '{CUBE}.candidate_application_id'
+        type: number
+      - name: isanonymous
+        sql: '{CUBE}.is_anonymous'
+        type: boolean
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: candidateprofileid
+        sql: '{CUBE}.candidate_profile_id'
+        type: number
+      - name: surveyformtemplateid
+        sql: '{CUBE}.survey_form_template_id'
+        type: number
+      - name: createdby
+        sql: '{CUBE}.created_by'
+        type: number
+      - name: attemptnumber
+        sql: '{CUBE}.attempt_number'
+        type: number
+      - name: replacedby
+        sql: '{CUBE}.replaced_by'
+        type: number
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean
+      - name: surveyformcompletionstatus
+        sql: '{CUBE}.survey_form_completion_status'
+        type: string
+      - name: surveyformdeliverystatus
+        sql: '{CUBE}.survey_form_delivery_status'
+        type: string
+      - name: respondentscore
+        sql: '{CUBE}.respondent_score'
+        type: number
+      - name: respondedat
+        sql: '{CUBE}.responded_at'
         type: time
-      - name: updated_at
-        sql: updated_at
+      - name: expirationdate
+        sql: '{CUBE}.expiration_date'
         type: time
-      - name: expiration_date
-        sql: expiration_date
+      - name: createdat
+        sql: '{CUBE}.created_at'
         type: time
-      - name: responded_at
-        sql: responded_at
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
         type: time
-    measures:
-      - name: count
-        type: count
-      - name: attempt_number
-        sql: attempt_number
-        type: sum

@@ -1,69 +1,112 @@
 cubes:
   - name: survey_form_question_template
-    sql_table: survey_form_question_template
+    # sql_table: survey_form_question_template
+    sql: >
+      SELECT * FROM survey_form_question_template
+      {% if COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId %}
+        WHERE survey_form_question_template.id = '{ COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId }'
+      {% else %}
+        WHERE 1 = 1
+      {% endif %}
     joins:
       - name: survey_form_template
-        sql: '{CUBE}.survey_form_template_id = {survey_form_template.id}'
+        sql: '{CUBE}.survey_form_template_id = {survey_form_template}.id'
         relationship: many_to_one
+      - name: custom_candidate_profile_field
+        sql: '{CUBE}.custom_candidate_profile_field_id = {custom_candidate_profile_field}.id'
+        relationship: many_to_one
+      - name: custom_candidate_application_field
+        sql: '{CUBE}.custom_candidate_application_field_id = {custom_candidate_application_field}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
     dimensions:
       - name: id
         sql: id
         type: number
         primary_key: true
-      - name: add_rating_labels
-        sql: add_rating_labels
-        type: boolean
-      - name: answer_options
-        sql: answer_options
-        type: string
-      - name: enable_comment_field
-        sql: enable_comment_field
-        type: boolean
-      - name: is_deleted
-        sql: is_deleted
-        type: boolean
-      - name: is_edited
-        sql: is_edited
-        type: boolean
-      - name: is_required
-        sql: is_required
-        type: boolean
-      - name: is_template
-        sql: is_template
-        type: boolean
-      - name: manual_review_score
-        sql: manual_review_score
-        type: boolean
+      - name: surveyformtemplateid
+        sql: '{CUBE}.survey_form_template_id'
+        type: number
       - name: question
-        sql: question
+        sql: '{CUBE}.question'
         type: string
-      - name: question_comment
-        sql: question_comment
+      - name: questiontype
+        sql: '{CUBE}.question_type'
         type: string
-      - name: question_description
-        sql: question_description
+      - name: questiondescription
+        sql: '{CUBE}.question_description'
         type: string
-      - name: question_type
-        sql: question_type
+      - name: questioncomment
+        sql: '{CUBE}.question_comment'
         type: string
-      - name: rating_shape
-        sql: rating_shape
+      - name: answeroptions
+        sql: '{CUBE}.answer_options'
         type: string
-      - name: score_answer
-        sql: score_answer
+      - name: isrequired
+        sql: '{CUBE}.is_required'
         type: boolean
-      - name: selection_display
-        sql: selection_display
+      - name: istemplate
+        sql: '{CUBE}.is_template'
+        type: boolean
+      - name: isedited
+        sql: '{CUBE}.is_edited'
+        type: boolean
+      - name: selectiondisplay
+        sql: '{CUBE}.selection_display'
         type: string
-      - name: created_at
-        sql: created_at
+      - name: scoreanswer
+        sql: '{CUBE}.score_answer'
+        type: boolean
+      - name: addratinglabels
+        sql: '{CUBE}.add_rating_labels'
+        type: boolean
+      - name: ratingshapescale
+        sql: '{CUBE}.rating_shape_scale'
+        type: number
+      - name: ratingshape
+        sql: '{CUBE}.rating_shape'
+        type: string
+      - name: manualreviewscore
+        sql: '{CUBE}.manual_review_score'
+        type: boolean
+      - name: enablecommentfield
+        sql: '{CUBE}.enable_comment_field'
+        type: boolean
+      - name: numberscalemin
+        sql: '{CUBE}.number_scale_min'
+        type: number
+      - name: numberscalemax
+        sql: '{CUBE}.number_scale_max'
+        type: number
+      - name: reviewerscorerangemin
+        sql: '{CUBE}.reviewer_score_range_min'
+        type: number
+      - name: reviewerscorerangemax
+        sql: '{CUBE}.reviewer_score_range_max'
+        type: number
+      - name: customcandidateprofilefieldid
+        sql: '{CUBE}.custom_candidate_profile_field_id'
+        type: number
+      - name: customcandidateapplicationfieldid
+        sql: '{CUBE}.custom_candidate_application_field_id'
+        type: number
+      - name: pagenumber
+        sql: '{CUBE}.page_number'
+        type: number
+      - name: rankorder
+        sql: '{CUBE}.rank_order'
+        type: number
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean
+      - name: replacedby
+        sql: '{CUBE}.replaced_by'
+        type: number
+      - name: createdat
+        sql: '{CUBE}.created_at'
         type: time
-      - name: updated_at
-        sql: updated_at
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
         type: time
-    measures:
-      - name: count
-        type: count
-      - name: page_number
-        sql: page_number
-        type: sum

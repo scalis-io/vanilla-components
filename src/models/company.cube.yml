@@ -51,6 +51,9 @@ cubes:
       - name: source_category
         sql: '{CUBE}.id = {source_category}.company_id'
         relationship: one_to_many
+      - name: survey_form_template
+        sql: '{CUBE}.id = {survey_form_template}.company_id'
+        relationship: one_to_many
     measures:
       - name: count
         type: count

@@ -26,3 +26,9 @@
   environment: prod
   securityContext:
     companyId: 5
+
+- name: development (companyId=85, surveyFormQuestionTemplateId=13)
+  environment: dev
+  securityContext:
+    companyId: 85
+    surveyFormQuestionTemplateId: 13
