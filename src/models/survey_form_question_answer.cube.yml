@@ -31,12 +31,14 @@ cubes:
       - name: answer_value
         sql: |
           CASE
-            WHEN {CUBE}.answer ->> 'type' IN ('SHORT_ANSWER', 'PARAGRAPH', 'NUMBER_SCALE', 'NUMERICAL')
+            WHEN {CUBE}.answer ->> 'type' IN ('SHORT_ANSWER', 'PARAGRAPH', 'NUMBER_SCALE', 'NUMERICAL', 'DATE', 'URL', 'EMAIL', 'PHONE')
               THEN {CUBE}.answer ->> 'value'
             WHEN {CUBE}.answer ->> 'type' IN ('SINGLE_SELECT', 'YES_NO')
               THEN {CUBE}.answer ->> 'selectedOption'
             WHEN {CUBE}.answer ->> 'type' = 'MULTIPLE_SELECT'
               THEN {CUBE}.answer ->> 'selectedOptions'
+            WHEN {CUBE}.answer ->> 'type' = 'RATING'
+              THEN {CUBE}.answer ->> 'rating'
             WHEN {CUBE}.answer ->> 'type' = 'FILE_UPLOAD'
               THEN ({CUBE}.answer -> 'files' -> 0 ->> 'fileUrl')
             ELSE NULL
