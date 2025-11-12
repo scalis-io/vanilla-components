@@ -11,7 +11,7 @@ const themeProvider = (clientContext: any, parentTheme: Theme): Theme => {
     return parentTheme;
   }
 
-  const { theme } = clientContext;
+  const { theme } = clientContext || {};
 	return defineTheme(parentTheme, theme);
 };
 
