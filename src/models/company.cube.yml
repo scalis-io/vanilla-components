@@ -79,9 +79,6 @@ cubes:
       - name: subdomain
         sql: '{CUBE}.subdomain'
         type: string
-      - name: paymentgatewaycustomerid
-        sql: '{CUBE}.payment_gateway_customer_id'
-        type: string
       - name: currency
         sql: '{CUBE}.currency'
         type: string
