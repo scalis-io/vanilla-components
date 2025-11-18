@@ -1,6 +1,35 @@
 cubes:
   - name: survey_form
-    sql_table: survey_form
+    # sql_table: survey_form
+    sql: >
+      SELECT * FROM survey_form WHERE 1 = 1
+      {% if COMPILE_CONTEXT.securityContext.respondedAtFrom %}
+        AND survey_form.responded_at >= '{{ COMPILE_CONTEXT.securityContext.respondedAtFrom }}'
+      {% endif %}
+      {% if COMPILE_CONTEXT.securityContext.respondedAtTo %}
+        AND survey_form.responded_at <= '{{ COMPILE_CONTEXT.securityContext.respondedAtTo }}'
+      {% endif %}
+      {% if COMPILE_CONTEXT.securityContext.companyUserIds %}
+        AND survey_form.company_user_id IN (
+          {% for id in COMPILE_CONTEXT.securityContext.companyUserIds %}
+            '{{ id }}'{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        )
+      {% endif %}
+      {% if COMPILE_CONTEXT.securityContext.candidateProfileIds %}
+        AND survey_form.candidate_profile_id IN (
+          {% for id in COMPILE_CONTEXT.securityContext.candidateProfileIds %}
+            '{{ id }}'{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        )
+      {% endif %}
+      {% if COMPILE_CONTEXT.securityContext.candidateApplicationIds %}
+        AND survey_form.candidate_application_id IN (
+          {% for id in COMPILE_CONTEXT.securityContext.candidateApplicationIds %}
+            '{{ id }}'{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        )
+      {% endif %}
     joins:
       - name: survey_form_template
         sql: '{CUBE}.survey_form_template_id = {survey_form_template}.id'
@@ -14,6 +43,9 @@ cubes:
       - name: candidate_profile
         sql: '{CUBE}.candidate_profile_id = {candidate_profile}.id'
         relationship: many_to_one
+      - name: survey_form_question_answer
+        sql: "{CUBE}.id = {survey_form_question_answer}.survey_form_id"
+        relationship: one_to_many
     measures:
       - name: count
         type: count
@@ -22,6 +54,7 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        public: true
       - name: uuid
         sql: '{CUBE}.uuid'
         type: string

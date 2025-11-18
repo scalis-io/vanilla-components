@@ -12,6 +12,11 @@ const themeProvider = (clientContext: any, parentTheme: Theme): Theme => {
   }
 
   const { theme } = clientContext || {};
+
+  if (!theme || typeof theme !== 'object') {
+    return parentTheme;
+  }
+  
 	return defineTheme(parentTheme, theme);
 };
 

@@ -29,7 +29,10 @@ SELECT * FROM "Company"
 5. Ensure that every query execution joins with `Company` table by adding a filter below to every dataset to be used in https://app.us.embeddable.com/en/workspace/${workspaceId}
    ![plot](./public/DatasetBuilder.png)
 
-6. A `securityContext` is being properly sent on the client/consumer similar to [Scalis frontend integration](https://github.com/scalis-io/scalis-io/blob/main/src/app/company/analytics/%5Bid%5D/page.tsx)
+6. If you're working with `Survey Forms` the `companyId` filter is handled by the `survey_form_template` cube to prevent loop issues
+   ![plot](./public/SurveyFormDatasetBuilder.png)
+
+7. A `securityContext` is being properly sent on the client/consumer similar to [Scalis frontend integration](https://github.com/scalis-io/scalis-io/blob/main/src/app/company/analytics/%5Bid%5D/page.tsx)
 
 ```ts
 const securityContext = { companyId: session?.user.workspace?.currentCompany.id }
