@@ -1,6 +1,11 @@
 cubes:
   - name: survey_form_template
-    sql_table: survey_form_template
+    # sql_table: survey_form_template
+    sql: >
+      SELECT * FROM survey_form_template WHERE 1 = 1
+      {% if COMPILE_CONTEXT.securityContext.companyId %}
+        AND survey_form_template.company_id = '{ COMPILE_CONTEXT.securityContext.companyId }'
+      {% endif %}
     joins:
       - name: company
         sql: '{CUBE}.company_id = {company}.id'
@@ -22,6 +27,7 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        public: true
       - name: uuid
         sql: '{CUBE}.uuid'
         type: string

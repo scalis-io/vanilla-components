@@ -2,11 +2,9 @@ cubes:
   - name: survey_form_question_template
     # sql_table: survey_form_question_template
     sql: >
-      SELECT * FROM survey_form_question_template
+      SELECT * FROM survey_form_question_template WHERE 1 = 1
       {% if COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId %}
-        WHERE survey_form_question_template.id = '{ COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId }'
-      {% else %}
-        WHERE 1 = 1
+        AND survey_form_question_template.id = '{ COMPILE_CONTEXT.securityContext.surveyFormQuestionTemplateId }'
       {% endif %}
     joins:
       - name: survey_form_template
@@ -26,6 +24,7 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        public: true
       - name: surveyformtemplateid
         sql: '{CUBE}.survey_form_template_id'
         type: number
