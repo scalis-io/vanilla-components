@@ -1,6 +1,11 @@
 cubes:
   - name: requisition
-    sql_table: requisition
+    # sql_table: requisition
+    sql: >
+      SELECT * FROM requisition WHERE 1 = 1
+      {% if COMPILE_CONTEXT.securityContext.companyId %}
+        AND requisition.company_id = '{ COMPILE_CONTEXT.securityContext.companyId }'
+      {% endif %}
     joins:
       - name: job_listing
         sql: '{CUBE}.id = {job_listing}.job_requisition_id'
@@ -34,6 +39,7 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        public: true
       - name: companyid
         sql: '{CUBE}.company_id'
         type: number

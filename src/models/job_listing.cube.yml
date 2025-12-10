@@ -22,6 +22,7 @@ cubes:
         sql: id
         type: number
         primary_key: true
+        public: true
       - name: publiclistingid
         sql: '{CUBE}.public_listing_id'
         type: string
