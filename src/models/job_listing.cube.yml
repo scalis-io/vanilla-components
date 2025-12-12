@@ -17,6 +17,9 @@ cubes:
     measures:
       - name: count
         type: count
+      - name: days_since_posted
+        type: number
+        sql: "(CURRENT_DATE - COALESCE({CUBE}.posted_at::date, CURRENT_DATE))"
     dimensions:
       - name: id
         sql: id
