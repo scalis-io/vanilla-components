@@ -1,0 +1,115 @@
+cubes:
+  - name: requisition_time_to_fill
+    description: 'Time to fill in days for requisitions, with proper joins for department and hiring team member filters'
+    sql: >
+      SELECT
+        "requisition"."id" AS "requisition_id",
+        "requisition"."job_name" AS "job_name",
+        "requisition"."company_department_id" AS "company_department_id",
+        "company_department"."department_name" AS "department_name",
+        "job_opening"."id" AS "job_opening_id",
+        "job_opening"."opening_status" AS "opening_status",
+        "job_opening"."filled_date" AS "filled_date",
+        "job_opening"."start_date" AS "start_date",
+        "hiring_team_member"."id" AS "hiring_team_member_id",
+        "hiring_team_member"."company_user_id" AS "company_user_id",
+        "company_user"."user_invitation_id" AS "user_invitation_id",
+        "user_invitation"."scalis_user_id" AS "scalis_user_id",
+        "scalis_user"."first_name" AS "scalis_user_first_name",
+        "scalis_user"."last_name" AS "scalis_user_last_name",
+        
+        -- Time to fill calculation
+        CASE
+          WHEN "job_opening"."opening_status" = 'FILLED'
+               AND "job_opening"."filled_date" IS NOT NULL
+               AND "job_opening"."start_date" IS NOT NULL
+          THEN
+            "job_opening"."filled_date"::date - "job_opening"."start_date"::date
+          ELSE
+            NULL
+        END AS "time_to_fill_days"
+
+      FROM "requisition"
+
+      LEFT JOIN "company_department"
+        ON "requisition"."company_department_id" = "company_department"."id"
+
+      LEFT JOIN "job_opening"
+        ON "requisition"."id" = "job_opening"."job_requisition_id"
+
+      LEFT JOIN "hiring_team_member"
+        ON "requisition"."id" = "hiring_team_member"."requisition_id"
+
+      LEFT JOIN "company_user"
+        ON "hiring_team_member"."company_user_id" = "company_user"."id"
+
+      LEFT JOIN "user_invitation"
+        ON "company_user"."user_invitation_id" = "user_invitation"."id"
+        AND "user_invitation"."deleted_at" IS NULL
+
+      LEFT JOIN "scalis_user"
+        ON "user_invitation"."scalis_user_id" = "scalis_user"."id"
+
+      WHERE "requisition"."is_deleted" IS NOT TRUE
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "requisition"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
+        {% endif %}
+
+    dimensions:
+      - name: requisitionid
+        title: 'Requisition ID'
+        sql: 'requisition_id'
+        type: number
+        primary_key: true
+
+      - name: jobname
+        title: 'Job Name'
+        sql: 'job_name'
+        type: string
+
+      - name: companydepartmentid
+        title: 'Company Department ID'
+        sql: 'company_department_id'
+        type: number
+
+      - name: departmentname
+        title: 'Department Name'
+        sql: 'department_name'
+        type: string
+
+      - name: jobopeningid
+        title: 'Job Opening ID'
+        sql: 'job_opening_id'
+        type: number
+
+      - name: openingstatus
+        title: 'Opening Status'
+        sql: 'opening_status'
+        type: string
+
+      - name: scalisuserfullname
+        title: 'Hiring Team Member Name'
+        sql: >
+          CONCAT(
+            COALESCE("scalis_user_first_name", ''),
+            ' ',
+            COALESCE("scalis_user_last_name", '')
+          )
+        type: string
+
+    measures:
+      - name: timetofilldays
+        title: 'Time to Fill (Days)'
+        description: 'Average time to fill in days (filled_date - start_date) for filled openings'
+        type: avg
+        sql: '"time_to_fill_days"'
+
+      - name: countfilledopenings
+        title: 'Count Filled Openings'
+        description: 'Number of filled job openings'
+        type: count
+        sql: >
+          CASE
+            WHEN "opening_status" = 'FILLED' AND "time_to_fill_days" IS NOT NULL THEN 1
+            ELSE NULL
+          END

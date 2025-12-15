@@ -28,12 +28,25 @@ cubes:
       - name: hiring_team_member
         sql: '{CUBE}.id = {hiring_team_member}.requisition_id'
         relationship: one_to_many
+      - name: activity_log
+        sql: "{CUBE}.id = {activity_log}.requisition_id"
+        relationship: one_to_many
       - name: custom_candidate_profile_field
         sql: '{CUBE}.id = {custom_candidate_profile_field}.requisition_id'
         relationship: one_to_many
     measures:
       - name: count
         type: count
+      - name: days_since_opening
+        type: number
+        sql: "(CURRENT_DATE - COALESCE({CUBE}.opened_at::date, CURRENT_DATE))"
+      - name: days_since_creation
+        type: number
+        sql: "(CURRENT_DATE - COALESCE({CUBE}.created_at::date, CURRENT_DATE))"
+      - name: filled_openings
+        type: count
+        filters:
+          - sql: "{job_opening.opening_status} = 'FILLED'"
     dimensions:
       - name: id
         sql: id

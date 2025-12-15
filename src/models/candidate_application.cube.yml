@@ -30,9 +30,70 @@ cubes:
         sql: '{CUBE}.id =
           {custom_candidate_application_field_value}.candidate_application_id'
         relationship: one_to_many
+      - name: activity_log
+        sql: '{CUBE}.id = {activity_log}.candidate_application_id'
+        relationship: one_to_many
     measures:
       - name: count
         type: count
+      - name: valid_candidates
+        title: 'Active Candidates'
+        type: count
+        filters:
+          - sql: "{CUBE}.deleted IS NULL"
+          - sql: >
+              {CUBE}.duplication_status <> 'DUPLICATE'
+              OR {CUBE}.duplication_status IS NULL
+      - name: sourcing_candidates
+        type: count
+        filters:
+          - sql: "{template_milestone.name} = 'SOURCING'"
+      - name: sourcing_ratio
+        type: number
+        sql: "({sourcing_candidates} * 1.0 / NULLIF({count}, 0)) * 100"
+      - name: application_review_candidates
+        type: count
+        filters:
+          - sql: "{template_milestone.name} = 'APPLICATION_REVIEW'"
+      - name: application_review_ratio
+        type: number
+        sql: "({application_review_candidates} * 1.0 / NULLIF({count}, 0)) * 100"
+      - name: pre_screen_candidates
+        type: count
+        filters:
+          - sql: "{template_milestone.name} = 'PRE_SCREEN'"
+      - name: pre_screen_ratio
+        type: number
+        sql: "({pre_screen_candidates} * 1.0 / NULLIF({count}, 0)) * 100"
+      - name: interviewing_candidates
+        type: count
+        filters:
+          - sql: "{template_milestone.name} = 'INTERVIEWING'"
+      - name: interviewing_ratio
+        type: number
+        sql: "({interviewing_candidates} * 1.0 / NULLIF({count}, 0)) * 100"
+      - name: offer_candidates
+        type: count
+        filters:
+          - sql: "{template_milestone.name} = 'OFFER'"
+      - name: offer_ratio
+        type: number
+        sql: "({offer_candidates} * 1.0 / NULLIF({count}, 0)) * 100"
+      - name: hired_candidates
+        type: count
+        filters:
+          - sql: "{template_milestone.name} = 'HIRED'"
+      - name: hired_ratio
+        type: number
+        sql: "({hired_candidates} * 1.0 / NULLIF({count}, 0)) * 100"
+      - name: time_to_hire_days
+        type: avg
+        sql: >
+            COALESCE({CUBE}.last_updated_status_at::date, CURRENT_DATE)
+            -
+            {CUBE}.applied_at::date
+        filters:
+          - sql: "{template_milestone.name} = 'HIRED'"
     dimensions:
       - name: id
         sql: id

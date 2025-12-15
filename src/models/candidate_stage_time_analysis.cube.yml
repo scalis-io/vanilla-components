@@ -1,0 +1,206 @@
+cubes:
+  - name: candidate_stage_time_analysis
+    description: 'Average time candidates spend in each stage (including sourcing via previous stage), filterable by job name, excluding hired stage'
+    sql: >
+      SELECT
+        "template_stage"."id" AS "template_stage_id",
+        "template_stage"."name" AS "stage_name",
+        "template_milestone"."name" AS "milestone_name",
+        "template_milestone"."rank_order" AS "milestone_rank_order",
+        "requisition"."job_name" AS "job_name",
+        "requisition"."company_department_id" AS "company_department_id",
+        "company_department"."department_name" AS "department_name",
+        stage_data."candidate_application_id",
+
+        -- duration only for completed stages
+        CASE
+          WHEN stage_data."exited_at" IS NOT NULL
+               AND stage_data."exited_at" >= stage_data."entered_at" THEN
+            EXTRACT(EPOCH FROM (
+              stage_data."exited_at" - stage_data."entered_at"
+            )) / 86400
+        END AS "days_completed",
+
+        -- Yield ratio helpers
+        CASE
+          WHEN stage_data."exited_at" IS NOT NULL
+               AND stage_data."exited_at" >= stage_data."entered_at" THEN
+            1
+          ELSE 0
+        END AS "completed_flag",
+        1 AS "entered_flag"
+
+        -- duration including ongoing stages (COMMENTED OUT)
+        -- CASE
+        --   WHEN stage_data."exited_at" IS NULL THEN
+        --     EXTRACT(EPOCH FROM (
+        --       CURRENT_TIMESTAMP - stage_data."entered_at"
+        --     )) / 86400
+        --   WHEN stage_data."exited_at" >= stage_data."entered_at" THEN
+        --     EXTRACT(EPOCH FROM (
+        --       stage_data."exited_at" - stage_data."entered_at"
+        --     )) / 86400
+        -- END AS "days_including_ongoing"
+
+      FROM (
+
+        /* =====================================
+           NORMAL STAGE TRANSITIONS
+           ===================================== */
+        SELECT
+          "activity_log"."candidate_application_id",
+          "activity_log"."new_template_stage_id" AS "template_stage_id",
+          "activity_log"."activity_timestamp" AS "entered_at",
+          LEAD("activity_log"."activity_timestamp") OVER (
+            PARTITION BY "activity_log"."candidate_application_id"
+            ORDER BY "activity_log"."activity_timestamp"
+          ) AS "exited_at"
+        FROM "activity_log"
+        WHERE "activity_log"."user_action" = 'ADVANCE_CANDIDATE'
+          AND "activity_log"."new_template_stage_id" IS NOT NULL
+          AND "activity_log"."activity_timestamp" IS NOT NULL
+          AND "activity_log"."is_deleted" IS NOT TRUE
+
+        UNION ALL
+
+        /* =====================================
+           INITIAL STAGE (SOURCING VIA PREVIOUS STAGE)
+           ===================================== */
+        SELECT
+          "activity_log"."candidate_application_id",
+          "activity_log"."previous_template_stage_id" AS "template_stage_id",
+          COALESCE(
+            "candidate_application"."applied_at",
+            "candidate_application"."created_at"
+          ) AS "entered_at",
+          "activity_log"."activity_timestamp" AS "exited_at"
+        FROM "activity_log"
+
+        JOIN "candidate_application"
+          ON "candidate_application"."id" = "activity_log"."candidate_application_id"
+          AND "candidate_application"."deleted" IS NULL
+
+        WHERE "activity_log"."user_action" = 'ADVANCE_CANDIDATE'
+          AND "activity_log"."previous_template_stage_id" IS NOT NULL
+          AND "activity_log"."activity_timestamp" IS NOT NULL
+          AND "activity_log"."is_deleted" IS NOT TRUE
+          AND NOT EXISTS (
+            SELECT 1
+            FROM "activity_log" al2
+            WHERE al2."candidate_application_id" = "activity_log"."candidate_application_id"
+              AND al2."user_action" = 'ADVANCE_CANDIDATE'
+              AND al2."activity_timestamp" < "activity_log"."activity_timestamp"
+              AND al2."is_deleted" IS NOT TRUE
+          )
+
+      ) stage_data
+
+      JOIN "candidate_application"
+        ON "candidate_application"."id" = stage_data."candidate_application_id"
+        AND "candidate_application"."deleted" IS NULL
+
+      JOIN "job_listing"
+        ON "candidate_application"."job_listing_id" = "job_listing"."id"
+        AND "job_listing"."is_deleted" IS NOT TRUE
+
+      JOIN "requisition"
+        ON "job_listing"."job_requisition_id" = "requisition"."id"
+        AND "requisition"."is_deleted" IS NOT TRUE
+
+      LEFT JOIN "company_department"
+        ON "requisition"."company_department_id" = "company_department"."id"
+
+      JOIN "template_stage"
+        ON "template_stage"."id" = stage_data."template_stage_id"
+        AND "template_stage"."archived" IS NOT TRUE
+
+      JOIN "template_milestone"
+        ON "template_milestone"."id" = "template_stage"."template_milestone_id"
+        AND "template_milestone"."name" <> 'HIRED'
+
+      WHERE stage_data."entered_at" IS NOT NULL
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "requisition"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
+        {% endif %}
+
+    dimensions:
+      - name: templatestageid
+        sql: 'template_stage_id'
+        type: number
+
+      - name: stagename
+        title: 'Stage Name'
+        sql: 'stage_name'
+        type: string
+
+      - name: milestonename
+        title: 'Milestone Name'
+        sql: 'milestone_name'
+        type: string
+
+      - name: milestonerankorder
+        title: 'Milestone Rank Order'
+        sql: 'milestone_rank_order'
+        type: number
+
+      - name: jobname
+        title: 'Job Name'
+        sql: 'job_name'
+        type: string
+
+      - name: companydepartmentid
+        title: 'Company Department ID'
+        sql: 'company_department_id'
+        type: number
+
+      - name: departmentname
+        title: 'Department Name'
+        sql: 'department_name'
+        type: string
+
+      - name: candidateapplicationid
+        title: 'Candidate Application ID'
+        sql: 'candidate_application_id'
+        type: number
+
+    measures:
+      - name: avgdayscompleted
+        title: 'Average Days (Completed Only)'
+        description: 'Average days in stage (only candidates who exited the stage)'
+        type: avg
+        sql: '"days_completed"'
+
+      # - name: avgdaysincludingongoing
+      #   title: 'Average Days (Including Ongoing)'
+      #   description: 'Average days in stage (including candidates still in the stage)'
+      #   type: avg
+      #   sql: '"days_including_ongoing"'
+
+      - name: countcandidates
+        title: 'Count of Candidates'
+        description: 'Number of candidates who passed through this stage'
+        type: count
+        sql: 'candidate_application_id'
+
+      - name: countcompleted
+        title: 'Count Completed'
+        description: 'Number of candidates who successfully completed the stage'
+        type: sum
+        sql: '"completed_flag"'
+
+      - name: countentered
+        title: 'Count Entered'
+        description: 'Total number of candidates who entered this stage'
+        type: sum
+        sql: '"entered_flag"'
+
+      - name: yieldratio
+        title: 'Yield Ratio'
+        description: 'Ratio of candidates who completed the stage vs total who entered (completed / entered) as percentage (0-100)'
+        type: number
+        sql: >
+          CASE
+            WHEN SUM({CUBE}."entered_flag") > 0 THEN
+              (SUM({CUBE}."completed_flag")::FLOAT / SUM({CUBE}."entered_flag")::FLOAT) * 100
+            ELSE 0
+          END

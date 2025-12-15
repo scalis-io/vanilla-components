@@ -1,0 +1,85 @@
+cubes:
+  - name: candidate_interview
+    sql_table: candidate_interview
+    joins:
+      - name: candidate_application
+        sql: '{CUBE}.application_id = {candidate_application}.id'
+        relationship: many_to_one
+      - name: template_stage
+        sql: '{CUBE}.stage_id = {template_stage}.id'
+        relationship: many_to_one
+      - name: job_listing
+        sql: '{candidate_application}.job_listing_id = {job_listing}.id'
+        relationship: many_to_one
+      - name: requisition
+        sql: '{job_listing}.job_requisition_id = {requisition}.id'
+        relationship: many_to_one
+      # It's cause some wrong behaviors in Job Snapshot dashboard if enabled
+      # - name: company_office
+      #   sql: '{CUBE}.company_office_id = {company_office}.id'
+      #   relationship: many_to_one
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: applicationid
+        sql: '{CUBE}.application_id'
+        type: number
+      - name: stageid
+        sql: '{CUBE}.stage_id'
+        type: number
+      - name: integrationsnylasnotetakerid
+        sql: '{CUBE}.integrations_nylas_notetaker_id'
+        type: number
+      - name: interviewdata
+        sql: '{CUBE}.interview_data'
+        type: string
+      - name: status
+        sql: '{CUBE}.status'
+        type: string
+      - name: interviewtemplateid
+        sql: '{CUBE}.interview_template_id'
+        type: number
+      - name: interviewerpoolid
+        sql: '{CUBE}.interviewer_pool_id'
+        type: number
+      - name: interviewstatus
+        sql: '{CUBE}.interview_status'
+        type: string
+      - name: schedulinglogic
+        sql: '{CUBE}.scheduling_logic'
+        type: string
+      - name: duration
+        sql: '{CUBE}.duration'
+        type: number
+      - name: debriefscheduled
+        sql: '{CUBE}.debrief_scheduled'
+        type: boolean
+      - name: interviewtype
+        sql: '{CUBE}.interview_type'
+        type: string
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
+      - name: alternateinterviewerid
+        sql: '{CUBE}.alternate_interviewer_id'
+        type: number
+      - name: companyofficeid
+        sql: '{CUBE}.company_office_id'
+        type: number
+      - name: sendreminderemail
+        sql: '{CUBE}.send_reminder_email'
+        type: boolean
+      - name: sendparticipationemail
+        sql: '{CUBE}.send_participation_email'
+        type: boolean
+      - name: remindertaskid
+        sql: '{CUBE}.reminder_task_id'
+        type: string
