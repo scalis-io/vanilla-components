@@ -27,6 +27,11 @@
   securityContext:
     companyId: 5
 
+- name: production (companyId=94)
+  environment: prod
+  securityContext:
+    companyId: 94
+
 - name: development (companyId=85, surveyFormQuestionTemplateId=14)
   environment: dev
   securityContext:
