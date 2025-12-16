@@ -2,24 +2,7 @@ cubes:
   - name: candidate_stage_time_analysis
     description: 'Average time candidates spend in each stage (including sourcing via previous stage), filterable by job name, excluding hired stage'
     sql: >
-      SELECT
-        "template_stage"."id" AS "template_stage_id",
-        "template_stage"."name" AS "stage_name",
-        "template_milestone"."name" AS "milestone_name",
-        "template_milestone"."rank_order" AS "milestone_rank_order",
-        "requisition"."job_name" AS "job_name",
-        "requisition"."company_department_id" AS "company_department_id",
-        "company_department"."department_name" AS "department_name",
-        "hiring_team_member"."id" AS "hiring_team_member_id",
-        "hiring_team_member"."company_user_id" AS "company_user_id",
-        "scalis_user"."first_name" AS "scalis_user_first_name",
-        "scalis_user"."last_name" AS "scalis_user_last_name",
-        stage_data."candidate_application_id",
-        stage_data."entered_at",
-        stage_data."exited_at"
-
-      FROM (
-
+      WITH stage_transitions AS (
         /* =====================================
            NORMAL STAGE TRANSITIONS
            ===================================== */
@@ -51,11 +34,9 @@ cubes:
           ) AS "entered_at",
           "activity_log"."activity_timestamp" AS "exited_at"
         FROM "activity_log"
-
         JOIN "candidate_application"
           ON "candidate_application"."id" = "activity_log"."candidate_application_id"
           AND "candidate_application"."deleted" IS NULL
-
         WHERE "activity_log"."user_action" = 'ADVANCE_CANDIDATE'
           AND "activity_log"."previous_template_stage_id" IS NOT NULL
           AND "activity_log"."activity_timestamp" IS NOT NULL
@@ -68,60 +49,76 @@ cubes:
               AND al2."activity_timestamp" < "activity_log"."activity_timestamp"
               AND al2."is_deleted" IS NOT TRUE
           )
-
-      ) stage_data
-
-      JOIN "candidate_application"
-        ON "candidate_application"."id" = stage_data."candidate_application_id"
-        AND "candidate_application"."deleted" IS NULL
-
-      JOIN "job_listing"
-        ON "candidate_application"."job_listing_id" = "job_listing"."id"
-        AND "job_listing"."is_deleted" IS NOT TRUE
-
-      JOIN "requisition"
-        ON "job_listing"."job_requisition_id" = "requisition"."id"
-        AND "requisition"."is_deleted" IS NOT TRUE
-
-      LEFT JOIN "company_department"
-        ON "requisition"."company_department_id" = "company_department"."id"
-
+      ),
+      unique_transitions AS (
+        /* Base query with unique transitions - no duplication */
+        SELECT DISTINCT ON (
+          stage_transitions."candidate_application_id",
+          stage_transitions."template_stage_id",
+          stage_transitions."entered_at"
+        )
+          stage_transitions."candidate_application_id",
+          stage_transitions."template_stage_id",
+          stage_transitions."entered_at",
+          stage_transitions."exited_at",
+          "template_milestone"."name" AS "milestone_name",
+          "template_milestone"."rank_order" AS "milestone_rank_order",
+          "requisition"."id" AS "requisition_id",
+          "requisition"."job_name" AS "job_name",
+          "company_department"."department_name" AS "department_name"
+        FROM stage_transitions
+        JOIN "candidate_application"
+          ON "candidate_application"."id" = stage_transitions."candidate_application_id"
+          AND "candidate_application"."deleted" IS NULL
+        JOIN "job_listing"
+          ON "candidate_application"."job_listing_id" = "job_listing"."id"
+          AND "job_listing"."is_deleted" IS NOT TRUE
+        JOIN "requisition"
+          ON "job_listing"."job_requisition_id" = "requisition"."id"
+          AND "requisition"."is_deleted" IS NOT TRUE
+        LEFT JOIN "company_department"
+          ON "requisition"."company_department_id" = "company_department"."id"
+        JOIN "template_stage"
+          ON "template_stage"."id" = stage_transitions."template_stage_id"
+          AND "template_stage"."archived" IS NOT TRUE
+        JOIN "template_milestone"
+          ON "template_milestone"."id" = "template_stage"."template_milestone_id"
+          AND "template_milestone"."name" <> 'HIRED'
+        WHERE stage_transitions."entered_at" IS NOT NULL
+          {% if COMPILE_CONTEXT.securityContext.companyId %}
+            AND "requisition"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
+          {% endif %}
+        ORDER BY
+          stage_transitions."candidate_application_id",
+          stage_transitions."template_stage_id",
+          stage_transitions."entered_at"
+      )
+      /* Final SELECT: JOIN with hiring_team_member for filtering capabilities */
+      /* Each transition may appear multiple times (once per hiring team member) */
+      /* Measures use count_distinct to ensure correct counts even with duplication */
+      SELECT
+        ut."template_stage_id",
+        ut."milestone_name",
+        ut."milestone_rank_order",
+        ut."job_name",
+        ut."department_name",
+        ut."candidate_application_id",
+        ut."entered_at",
+        ut."exited_at",
+        "scalis_user"."first_name" AS "scalis_user_first_name",
+        "scalis_user"."last_name" AS "scalis_user_last_name"
+      FROM unique_transitions ut
       LEFT JOIN "hiring_team_member"
-        ON "requisition"."id" = "hiring_team_member"."requisition_id"
-
+        ON ut."requisition_id" = "hiring_team_member"."requisition_id"
       LEFT JOIN "company_user"
         ON "hiring_team_member"."company_user_id" = "company_user"."id"
-
       LEFT JOIN "user_invitation"
         ON "company_user"."user_invitation_id" = "user_invitation"."id"
         AND "user_invitation"."deleted_at" IS NULL
-
       LEFT JOIN "scalis_user"
         ON "user_invitation"."scalis_user_id" = "scalis_user"."id"
 
-      JOIN "template_stage"
-        ON "template_stage"."id" = stage_data."template_stage_id"
-        AND "template_stage"."archived" IS NOT TRUE
-
-      JOIN "template_milestone"
-        ON "template_milestone"."id" = "template_stage"."template_milestone_id"
-        AND "template_milestone"."name" <> 'HIRED'
-
-      WHERE stage_data."entered_at" IS NOT NULL
-        {% if COMPILE_CONTEXT.securityContext.companyId %}
-          AND "requisition"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
-        {% endif %}
-
     dimensions:
-      - name: templatestageid
-        sql: 'template_stage_id'
-        type: number
-
-      - name: stagename
-        title: 'Stage Name'
-        sql: 'stage_name'
-        type: string
-
       - name: milestonename
         title: 'Milestone Name'
         sql: 'milestone_name'
@@ -136,11 +133,6 @@ cubes:
         title: 'Job Name'
         sql: 'job_name'
         type: string
-
-      - name: companydepartmentid
-        title: 'Company Department ID'
-        sql: 'company_department_id'
-        type: number
 
       - name: departmentname
         title: 'Department Name'
@@ -157,25 +149,10 @@ cubes:
           )
         type: string
 
-      - name: companyuserid
-        title: 'Company User ID'
-        sql: 'company_user_id'
-        type: number
-
-      - name: hiringteammemberid
-        title: 'Hiring Team Member ID'
-        sql: 'hiring_team_member_id'
-        type: number
-
-      - name: candidateapplicationid
-        title: 'Candidate Application ID'
-        sql: 'candidate_application_id'
-        type: number
-
     measures:
       - name: avgdayscompleted
         title: 'Average Days (Completed Only)'
-        description: 'Average days in stage (only candidates who exited the stage)'
+        description: 'Average days in stage (only candidates who exited the stage). Note: May have slight imprecision when filtering by hiring team member if different transitions have different duplication factors.'
         type: avg
         sql: >
           CASE
@@ -187,61 +164,38 @@ cubes:
             ELSE NULL
           END
 
-      # - name: avgdaysincludingongoing
-      #   title: 'Average Days (Including Ongoing)'
-      #   description: 'Average days in stage (including candidates still in the stage)'
-      #   type: avg
-      #   sql: >
-      #     CASE
-      #       WHEN {CUBE}."exited_at" IS NULL THEN
-      #         EXTRACT(EPOCH FROM (
-      #           CURRENT_TIMESTAMP - {CUBE}."entered_at"
-      #         )) / 86400
-      #       WHEN {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
-      #         EXTRACT(EPOCH FROM (
-      #           {CUBE}."exited_at" - {CUBE}."entered_at"
-      #         )) / 86400
-      #       ELSE NULL
-      #     END
-
-      - name: countcandidates
-        title: 'Count of Candidates'
-        description: 'Number of candidates who passed through this stage'
-        type: count
-        sql: 'candidate_application_id'
-
-      - name: countcompleted
-        title: 'Count Completed'
-        description: 'Number of candidates who successfully completed the stage'
-        type: sum
-        sql: >
-          CASE
-            WHEN {CUBE}."exited_at" IS NOT NULL
-                 AND {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
-              1
-            ELSE 0
-          END
-
-      - name: countentered
-        title: 'Count Entered'
-        description: 'Total number of candidates who entered this stage'
-        type: sum
-        sql: '1'
-
       - name: yieldratio
         title: 'Yield Ratio'
         description: 'Ratio of candidates who completed the stage vs total who entered (completed / entered) as percentage (0-100)'
         type: number
         sql: >
           CASE
-            WHEN COUNT(*) > 0 THEN
-              (SUM(
+            WHEN COUNT(DISTINCT CONCAT(
+              {CUBE}."candidate_application_id"::TEXT,
+              '-',
+              {CUBE}."template_stage_id"::TEXT,
+              '-',
+              {CUBE}."entered_at"::TEXT
+            )) > 0 THEN
+              (COUNT(DISTINCT
                 CASE
                   WHEN {CUBE}."exited_at" IS NOT NULL
                        AND {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
-                    1
-                  ELSE 0
+                    CONCAT(
+                      {CUBE}."candidate_application_id"::TEXT,
+                      '-',
+                      {CUBE}."template_stage_id"::TEXT,
+                      '-',
+                      {CUBE}."entered_at"::TEXT
+                    )
+                  ELSE NULL
                 END
-              )::FLOAT / COUNT(*)::FLOAT) * 100
+              )::FLOAT / COUNT(DISTINCT CONCAT(
+                {CUBE}."candidate_application_id"::TEXT,
+                '-',
+                {CUBE}."template_stage_id"::TEXT,
+                '-',
+                {CUBE}."entered_at"::TEXT
+              ))::FLOAT) * 100
             ELSE 0
           END

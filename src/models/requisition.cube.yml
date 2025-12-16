@@ -38,10 +38,10 @@ cubes:
       - name: count
         type: count
       - name: days_since_opening
-        type: number
+        type: avg
         sql: "(CURRENT_DATE - COALESCE({CUBE}.opened_at::date, CURRENT_DATE))"
       - name: days_since_creation
-        type: number
+        type: avg
         sql: "(CURRENT_DATE - COALESCE({CUBE}.created_at::date, CURRENT_DATE))"
       - name: filled_openings
         type: count
