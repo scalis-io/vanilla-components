@@ -22,6 +22,11 @@
   securityContext:
     companyId: 95
 
+- name: production (companyId=4)
+  environment: prod
+  securityContext:
+    companyId: 4
+
 - name: production (companyId=5)
   environment: prod
   securityContext:
