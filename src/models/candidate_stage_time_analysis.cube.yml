@@ -10,6 +10,10 @@ cubes:
         "requisition"."job_name" AS "job_name",
         "requisition"."company_department_id" AS "company_department_id",
         "company_department"."department_name" AS "department_name",
+        "hiring_team_member"."id" AS "hiring_team_member_id",
+        "hiring_team_member"."company_user_id" AS "company_user_id",
+        "scalis_user"."first_name" AS "scalis_user_first_name",
+        "scalis_user"."last_name" AS "scalis_user_last_name",
         stage_data."candidate_application_id",
 
         -- duration only for completed stages
@@ -110,6 +114,19 @@ cubes:
       LEFT JOIN "company_department"
         ON "requisition"."company_department_id" = "company_department"."id"
 
+      LEFT JOIN "hiring_team_member"
+        ON "requisition"."id" = "hiring_team_member"."requisition_id"
+
+      LEFT JOIN "company_user"
+        ON "hiring_team_member"."company_user_id" = "company_user"."id"
+
+      LEFT JOIN "user_invitation"
+        ON "company_user"."user_invitation_id" = "user_invitation"."id"
+        AND "user_invitation"."deleted_at" IS NULL
+
+      LEFT JOIN "scalis_user"
+        ON "user_invitation"."scalis_user_id" = "scalis_user"."id"
+
       JOIN "template_stage"
         ON "template_stage"."id" = stage_data."template_stage_id"
         AND "template_stage"."archived" IS NOT TRUE
@@ -157,6 +174,26 @@ cubes:
         title: 'Department Name'
         sql: 'department_name'
         type: string
+
+      - name: hiringteammemberfullname
+        title: 'Hiring Team Member Full Name'
+        sql: >
+          CONCAT(
+            COALESCE("scalis_user_first_name", ''),
+            ' ',
+            COALESCE("scalis_user_last_name", '')
+          )
+        type: string
+
+      - name: companyuserid
+        title: 'Company User ID'
+        sql: 'company_user_id'
+        type: number
+
+      - name: hiringteammemberid
+        title: 'Hiring Team Member ID'
+        sql: 'hiring_team_member_id'
+        type: number
 
       - name: candidateapplicationid
         title: 'Candidate Application ID'
