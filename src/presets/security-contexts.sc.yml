@@ -22,10 +22,20 @@
   securityContext:
     companyId: 95
 
+- name: production (companyId=4)
+  environment: prod
+  securityContext:
+    companyId: 4
+
 - name: production (companyId=5)
   environment: prod
   securityContext:
     companyId: 5
+
+- name: production (companyId=94)
+  environment: prod
+  securityContext:
+    companyId: 94
 
 - name: development (companyId=85, surveyFormQuestionTemplateId=14)
   environment: dev

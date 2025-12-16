@@ -1,0 +1,96 @@
+cubes:
+  - name: activity_log
+    sql_table: activity_log
+    joins:
+      - name: candidate_application
+        sql: '{CUBE}.candidate_application_id = {candidate_application}.id'
+        relationship: many_to_one
+      - name: candidate_profile
+        sql: '{CUBE}.candidate_profile_id = {candidate_profile}.id'
+        relationship: many_to_one
+      - name: company_user
+        sql: '{CUBE}.company_user_id = {company_user}.id'
+        relationship: many_to_one
+      - name: template_stage
+        sql: '{CUBE}.template_stage_id = {template_stage}.id'
+        relationship: many_to_one
+      - name: requisition
+        sql: '{CUBE}.requisition_id = {requisition}.id'
+        relationship: many_to_one
+      - name: company
+        sql: '{CUBE}.company_id = {company}.id'
+        relationship: many_to_one
+      - name: job_opening
+        sql: '{CUBE}.job_opening_id = {job_opening}.id'
+        relationship: many_to_one
+    measures:
+      - name: count
+        type: count
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+      - name: candidateprofileid
+        sql: '{CUBE}.candidate_profile_id'
+        type: number
+      - name: candidateapplicationid
+        sql: '{CUBE}.candidate_application_id'
+        type: number
+      - name: activitytimestamp
+        sql: '{CUBE}.activity_timestamp'
+        type: time
+      - name: activity
+        sql: '{CUBE}.activity'
+        type: string
+      - name: companyuserid
+        sql: '{CUBE}.company_user_id'
+        type: number
+      - name: useraction
+        sql: '{CUBE}.user_action'
+        type: string
+      - name: jobaction
+        sql: '{CUBE}.job_action'
+        type: string
+      - name: templatestageid
+        sql: '{CUBE}.template_stage_id'
+        type: number
+      - name: previoustemplatestageid
+        sql: '{CUBE}.previous_template_stage_id'
+        type: number
+      - name: newtemplatestageid
+        sql: '{CUBE}.new_template_stage_id'
+        type: number
+      - name: userip
+        sql: '{CUBE}.user_ip'
+        type: string
+      - name: requisitionid
+        sql: '{CUBE}.requisition_id'
+        type: number
+      - name: companyid
+        sql: '{CUBE}.company_id'
+        type: number
+      - name: jobopeningid
+        sql: '{CUBE}.job_opening_id'
+        type: number
+      - name: candidateofferversionid
+        sql: '{CUBE}.candidate_offer_version_id'
+        type: number
+      - name: createdat
+        sql: '{CUBE}.created_at'
+        type: time
+      - name: updatedat
+        sql: '{CUBE}.updated_at'
+        type: time
+      - name: approvalworkflowversionid
+        sql: '{CUBE}.approval_workflow_version_id'
+        type: number
+      - name: companycandidatetouchpointid
+        sql: '{CUBE}.company_candidate_touchpoint_id'
+        type: number
+      - name: assignedtocompanyuserid
+        sql: '{CUBE}.assigned_to_company_user_id'
+        type: number
+      - name: isdeleted
+        sql: '{CUBE}.is_deleted'
+        type: boolean

@@ -1,0 +1,86 @@
+cubes:
+  - name: company_users_options
+    description: 'Company users with their full names from scalis_user, for use in dropdowns and filters'
+    sql: >
+      SELECT
+        "company_user"."id" AS "company_user_id",
+        "company_user"."company_id" AS "company_id",
+        "company_user"."user_invitation_id" AS "user_invitation_id",
+        "company_user"."company_user_status" AS "company_user_status",
+        "user_invitation"."id" AS "user_invitation_id_check",
+        "user_invitation"."email" AS "email",
+        "user_invitation"."scalis_user_id" AS "scalis_user_id",
+        "scalis_user"."id" AS "scalis_user_id_check",
+        "scalis_user"."first_name" AS "first_name",
+        "scalis_user"."last_name" AS "last_name"
+
+      FROM "company_user"
+
+      LEFT JOIN "user_invitation"
+        ON "company_user"."user_invitation_id" = "user_invitation"."id"
+        AND "user_invitation"."deleted_at" IS NULL
+
+      LEFT JOIN "scalis_user"
+        ON "user_invitation"."scalis_user_id" = "scalis_user"."id"
+
+      WHERE 1 = 1
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "company_user"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
+        {% endif %}
+
+    dimensions:
+      - name: companyuserid
+        title: 'Company User ID'
+        sql: 'company_user_id'
+        type: number
+        primary_key: true
+
+      - name: companyid
+        title: 'Company ID'
+        sql: 'company_id'
+        type: number
+
+      - name: userinvitationid
+        title: 'User Invitation ID'
+        sql: 'user_invitation_id'
+        type: number
+
+      - name: email
+        title: 'Email'
+        sql: 'email'
+        type: string
+
+      - name: scalisuserid
+        title: 'Scalis User ID'
+        sql: 'scalis_user_id'
+        type: number
+
+      - name: firstname
+        title: 'First Name'
+        sql: 'first_name'
+        type: string
+
+      - name: lastname
+        title: 'Last Name'
+        sql: 'last_name'
+        type: string
+
+      - name: fullname
+        title: 'Full Name'
+        sql: >
+          CONCAT(
+            COALESCE("first_name", ''),
+            ' ',
+            COALESCE("last_name", '')
+          )
+        type: string
+
+      - name: companyuserstatus
+        title: 'Company User Status'
+        sql: 'company_user_status'
+        type: string
+
+    measures:
+      - name: count
+        title: 'Count'
+        type: count

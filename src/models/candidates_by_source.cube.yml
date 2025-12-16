@@ -1,0 +1,49 @@
+cubes:
+  - name: candidate_analysis_by_source
+    description: 'Candidate sources count by source name or category, filterable by job name'
+    sql: >
+      SELECT
+        "source_name"."name" AS "source_name",
+        "source_category"."source_category_name" AS "source_category_name",
+        "requisition"."job_name" AS "job_name",
+        COUNT("candidate_source"."id") AS "sources_count"
+      FROM "candidate_source"
+      JOIN "source_name"
+        ON "candidate_source"."source_name_id" = "source_name"."id"
+      JOIN "source_category"
+        ON "source_name"."source_category_id" = "source_category"."id"
+      JOIN "candidate_application"
+        ON "candidate_source"."candidate_application_id" = "candidate_application"."id"
+        AND "candidate_application"."deleted" IS NULL
+      JOIN "job_listing"
+        ON "candidate_application"."job_listing_id" = "job_listing"."id"
+        AND "job_listing"."is_deleted" IS NOT TRUE
+      JOIN "requisition"
+        ON "job_listing"."job_requisition_id" = "requisition"."id"
+        AND "requisition"."is_deleted" IS NOT TRUE
+      WHERE "candidate_source"."candidate_application_id" IS NOT NULL
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "requisition"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
+        {% endif %}
+      GROUP BY
+        "source_name"."name",
+        "source_category"."source_category_name",
+        "requisition"."job_name"
+
+    dimensions:
+      - name: sourcename
+        sql: 'source_name'
+        type: string
+
+      - name: sourcecategoryname
+        sql: 'source_category_name'
+        type: string
+
+      - name: jobname
+        sql: 'job_name'
+        type: string
+
+    measures:
+      - name: sources
+        sql: SUM({CUBE}."sources_count")
+        type: number

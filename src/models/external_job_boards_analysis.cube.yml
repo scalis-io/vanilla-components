@@ -1,0 +1,114 @@
+cubes:
+  - name: external_job_boards_analysis
+    description: 'Analysis of external job boards where requisitions are posted, including number of applications received and candidates in process'
+    sql: >
+      SELECT
+        posting_data."job_board_name",
+        "requisition"."id" AS "requisition_id",
+        "requisition"."job_name" AS "job_name",
+        "order"."id" AS "order_id",
+        "order"."order_reference" AS "order_reference",
+        "job_ad_campaign"."id" AS "campaign_id",
+        "job_ad_campaign"."campaign_name" AS "campaign_name",
+        "candidate_application"."id" AS "candidate_application_id",
+        "candidate_application"."application_status" AS "application_status",
+        "candidate_application"."deleted" AS "application_deleted"
+
+      FROM (
+        -- Extract job board name from labels.productName in JobAdCampaign JSON
+        SELECT
+          "job_ad_campaign"."id" AS "campaign_id",
+          "job_ad_campaign"."requisition_id",
+          ("job_ad_campaign"."vonq_vacancy")::jsonb->'labels'->>'productName' AS "job_board_name"
+        FROM "job_ad_campaign"
+        WHERE "job_ad_campaign"."vonq_vacancy" IS NOT NULL
+          AND ("job_ad_campaign"."vonq_vacancy")::jsonb->'labels'->>'productName' IS NOT NULL
+      ) AS posting_data
+
+      JOIN "job_ad_campaign"
+        ON "job_ad_campaign"."id" = posting_data."campaign_id"
+
+      JOIN "requisition"
+        ON "job_ad_campaign"."requisition_id" = "requisition"."id"
+        AND "requisition"."is_deleted" IS NOT TRUE
+
+      LEFT JOIN "order"
+        ON "job_ad_campaign"."order_id" = "order"."id"
+
+      LEFT JOIN "candidate_source"
+        ON "candidate_source"."campaign_id" = "job_ad_campaign"."id"
+        AND "candidate_source"."candidate_application_id" IS NOT NULL
+
+      LEFT JOIN "candidate_application"
+        ON "candidate_source"."candidate_application_id" = "candidate_application"."id"
+        AND "candidate_application"."deleted" IS NULL
+
+      LEFT JOIN "job_listing" AS "ca_job_listing"
+        ON "candidate_application"."job_listing_id" = "ca_job_listing"."id"
+        AND "ca_job_listing"."job_requisition_id" = "requisition"."id"
+        AND "ca_job_listing"."is_deleted" IS NOT TRUE
+
+      WHERE posting_data."job_board_name" IS NOT NULL
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "requisition"."company_id" = {{ COMPILE_CONTEXT.securityContext.companyId }}
+        {% endif %}
+
+    dimensions:
+      - name: jobboardname
+        title: 'Job Board Name'
+        sql: 'job_board_name'
+        type: string
+
+      - name: requisitionid
+        title: 'Requisition ID'
+        sql: 'requisition_id'
+        type: number
+
+      - name: jobname
+        title: 'Job Name'
+        sql: 'job_name'
+        type: string
+
+      - name: orderid
+        title: 'Order ID'
+        sql: 'order_id'
+        type: number
+
+      - name: orderreference
+        title: 'Order Reference'
+        sql: 'order_reference'
+        type: string
+
+      - name: campaignid
+        title: 'Campaign ID'
+        sql: 'campaign_id'
+        type: number
+
+      - name: campaignname
+        title: 'Campaign Name'
+        sql: 'campaign_name'
+        type: string
+
+    measures:
+      - name: countapplications
+        title: '# of Applications Received'
+        description: 'Total number of applications received from this job board for this requisition'
+        type: count
+        sql: >
+          CASE
+            WHEN "candidate_application_id" IS NOT NULL THEN 1
+            ELSE NULL
+          END
+
+      - name: countcandidatesinprocess
+        title: '# of Candidates in Process'
+        description: 'Number of candidates still in process (not deleted, not REJECTED)'
+        type: count
+        sql: >
+          CASE
+            WHEN "candidate_application_id" IS NOT NULL
+                 AND "application_deleted" IS NULL
+                 AND "application_status" != 'REJECTED'
+            THEN 1
+            ELSE NULL
+          END
