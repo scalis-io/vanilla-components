@@ -15,36 +15,8 @@ cubes:
         "scalis_user"."first_name" AS "scalis_user_first_name",
         "scalis_user"."last_name" AS "scalis_user_last_name",
         stage_data."candidate_application_id",
-
-        -- duration only for completed stages
-        CASE
-          WHEN stage_data."exited_at" IS NOT NULL
-               AND stage_data."exited_at" >= stage_data."entered_at" THEN
-            EXTRACT(EPOCH FROM (
-              stage_data."exited_at" - stage_data."entered_at"
-            )) / 86400
-        END AS "days_completed",
-
-        -- Yield ratio helpers
-        CASE
-          WHEN stage_data."exited_at" IS NOT NULL
-               AND stage_data."exited_at" >= stage_data."entered_at" THEN
-            1
-          ELSE 0
-        END AS "completed_flag",
-        1 AS "entered_flag"
-
-        -- duration including ongoing stages (COMMENTED OUT)
-        -- CASE
-        --   WHEN stage_data."exited_at" IS NULL THEN
-        --     EXTRACT(EPOCH FROM (
-        --       CURRENT_TIMESTAMP - stage_data."entered_at"
-        --     )) / 86400
-        --   WHEN stage_data."exited_at" >= stage_data."entered_at" THEN
-        --     EXTRACT(EPOCH FROM (
-        --       stage_data."exited_at" - stage_data."entered_at"
-        --     )) / 86400
-        -- END AS "days_including_ongoing"
+        stage_data."entered_at",
+        stage_data."exited_at"
 
       FROM (
 
@@ -205,13 +177,32 @@ cubes:
         title: 'Average Days (Completed Only)'
         description: 'Average days in stage (only candidates who exited the stage)'
         type: avg
-        sql: '"days_completed"'
+        sql: >
+          CASE
+            WHEN {CUBE}."exited_at" IS NOT NULL
+                 AND {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
+              EXTRACT(EPOCH FROM (
+                {CUBE}."exited_at" - {CUBE}."entered_at"
+              )) / 86400
+            ELSE NULL
+          END
 
       # - name: avgdaysincludingongoing
       #   title: 'Average Days (Including Ongoing)'
       #   description: 'Average days in stage (including candidates still in the stage)'
       #   type: avg
-      #   sql: '"days_including_ongoing"'
+      #   sql: >
+      #     CASE
+      #       WHEN {CUBE}."exited_at" IS NULL THEN
+      #         EXTRACT(EPOCH FROM (
+      #           CURRENT_TIMESTAMP - {CUBE}."entered_at"
+      #         )) / 86400
+      #       WHEN {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
+      #         EXTRACT(EPOCH FROM (
+      #           {CUBE}."exited_at" - {CUBE}."entered_at"
+      #         )) / 86400
+      #       ELSE NULL
+      #     END
 
       - name: countcandidates
         title: 'Count of Candidates'
@@ -223,13 +214,19 @@ cubes:
         title: 'Count Completed'
         description: 'Number of candidates who successfully completed the stage'
         type: sum
-        sql: '"completed_flag"'
+        sql: >
+          CASE
+            WHEN {CUBE}."exited_at" IS NOT NULL
+                 AND {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
+              1
+            ELSE 0
+          END
 
       - name: countentered
         title: 'Count Entered'
         description: 'Total number of candidates who entered this stage'
         type: sum
-        sql: '"entered_flag"'
+        sql: '1'
 
       - name: yieldratio
         title: 'Yield Ratio'
@@ -237,7 +234,14 @@ cubes:
         type: number
         sql: >
           CASE
-            WHEN SUM({CUBE}."entered_flag") > 0 THEN
-              (SUM({CUBE}."completed_flag")::FLOAT / SUM({CUBE}."entered_flag")::FLOAT) * 100
+            WHEN COUNT(*) > 0 THEN
+              (SUM(
+                CASE
+                  WHEN {CUBE}."exited_at" IS NOT NULL
+                       AND {CUBE}."exited_at" >= {CUBE}."entered_at" THEN
+                    1
+                  ELSE 0
+                END
+              )::FLOAT / COUNT(*)::FLOAT) * 100
             ELSE 0
           END

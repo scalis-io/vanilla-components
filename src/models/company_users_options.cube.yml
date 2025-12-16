@@ -12,12 +12,7 @@ cubes:
         "user_invitation"."scalis_user_id" AS "scalis_user_id",
         "scalis_user"."id" AS "scalis_user_id_check",
         "scalis_user"."first_name" AS "first_name",
-        "scalis_user"."last_name" AS "last_name",
-        CONCAT(
-          COALESCE("scalis_user"."first_name", ''),
-          ' ',
-          COALESCE("scalis_user"."last_name", '')
-        ) AS "full_name"
+        "scalis_user"."last_name" AS "last_name"
 
       FROM "company_user"
 
@@ -72,7 +67,12 @@ cubes:
 
       - name: fullname
         title: 'Full Name'
-        sql: 'full_name'
+        sql: >
+          CONCAT(
+            COALESCE("first_name", ''),
+            ' ',
+            COALESCE("last_name", '')
+          )
         type: string
 
       - name: companyuserstatus
