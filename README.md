@@ -1,5 +1,15 @@
-# Embeddable management repo tailored for Scalis requirements
+# [DEPRECATED] Embeddable management repo tailored for Scalis requirements
 
+> **This repository has been deprecated and archived.**
+>
+> All code has been migrated to [`scalis-io/analytics/embeddable`](https://github.com/scalis-io/scalis-io/tree/main/analytics/embeddable).
+> All future development should happen there.
+
+---
+
+The original README contents are preserved below for reference only.
+
+---
 
 ### Instructions
 
