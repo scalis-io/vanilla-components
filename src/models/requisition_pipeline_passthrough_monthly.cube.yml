@@ -1,0 +1,425 @@
+cubes:
+  - name: requisition_pipeline_passthrough_monthly
+    description: 'Requisition pipeline passthrough metrics by stage, using direct transition counting'
+    sql: >
+      /* ===================================================================
+         CTE 1: candidate_base
+         Resolves each candidate to their requisition and pipeline.
+         Pipeline is resolved via COALESCE(listing path, requisition path).
+         Filters: non-deleted candidates with a resolved pipeline and date.
+         Security context: companyId filter applied here.
+         =================================================================== */
+      WITH candidate_base AS (
+        SELECT
+          "candidate_application"."id" AS "candidate_application_id",
+          "candidate_application"."template_stage_id" AS "current_template_stage_id",
+          COALESCE(
+            "candidate_application"."applied_at",
+            "candidate_application"."created_at"
+          ) AS "applied_or_created_at",
+          DATE_TRUNC('month', COALESCE(
+            "candidate_application"."applied_at",
+            "candidate_application"."created_at"
+          )) AS "report_month",
+          "requisition"."id" AS "requisition_id",
+          "requisition"."company_id",
+          "requisition"."job_name" AS "job_name",
+          COALESCE(
+            "job_pipeline_listing"."template_pipeline_id",
+            "job_pipeline_requisition"."template_pipeline_id"
+          ) AS "template_pipeline_id"
+        FROM "candidate_application"
+        JOIN "job_listing"
+          ON "candidate_application"."job_listing_id" = "job_listing"."id"
+          AND "job_listing"."is_deleted" IS NOT TRUE
+        JOIN "requisition"
+          ON "job_listing"."job_requisition_id" = "requisition"."id"
+          AND "requisition"."is_deleted" IS NOT TRUE
+        LEFT JOIN "job_listing_job_pipeline"
+          ON "job_listing"."id" = "job_listing_job_pipeline"."job_listing_id"
+        LEFT JOIN "job_pipeline" AS "job_pipeline_listing"
+          ON "job_listing_job_pipeline"."job_pipeline_id" = "job_pipeline_listing"."id"
+        LEFT JOIN "job_pipeline" AS "job_pipeline_requisition"
+          ON "job_pipeline_requisition"."job_requisition_id" = "requisition"."id"
+        WHERE "candidate_application"."deleted" IS NULL
+          AND COALESCE(
+            "candidate_application"."applied_at",
+            "candidate_application"."created_at"
+          ) IS NOT NULL
+          AND COALESCE(
+            "job_pipeline_listing"."template_pipeline_id",
+            "job_pipeline_requisition"."template_pipeline_id"
+          ) IS NOT NULL
+          {% if COMPILE_CONTEXT.securityContext.companyId %}
+            AND "requisition"."company_id" = '{ COMPILE_CONTEXT.securityContext.companyId }'
+          {% endif %}
+      ),
+      /* ===================================================================
+         CTE 2: pipeline_stages
+         Ordered list of all template stages per pipeline, with milestone
+         metadata. Includes archived stages to preserve LAG() predecessor
+         relationships. ROW_NUMBER provides a deterministic ordering.
+         =================================================================== */
+      pipeline_stages AS (
+        SELECT
+          "template_stage"."id" AS "template_stage_id",
+          "template_stage"."template_pipeline_id",
+          "template_stage"."name" AS "stage_name",
+          "template_stage"."pipeline_rank_order" AS "stage_rank_order",
+          COALESCE("template_milestone"."name"::text, 'UNKNOWN') AS "milestone_name",
+          COALESCE("template_milestone"."rank_order", 999) AS "milestone_rank_order",
+          ROW_NUMBER() OVER (
+            PARTITION BY "template_stage"."template_pipeline_id"
+            ORDER BY "template_stage"."pipeline_rank_order", "template_stage"."id"
+          ) AS "stage_order_index"
+        FROM "template_stage"
+        LEFT JOIN "template_milestone"
+          ON "template_milestone"."id" = "template_stage"."template_milestone_id"
+      ),
+      /* ===================================================================
+         CTE 3: stage_sequence
+         Adds previous_template_stage_id via LAG() so each stage knows
+         its immediate predecessor. Used by direct_transition_counts to
+         validate that an advance is between adjacent stages.
+         =================================================================== */
+      stage_sequence AS (
+        SELECT
+          ps.*,
+          LAG(ps."template_stage_id") OVER (
+            PARTITION BY ps."template_pipeline_id"
+            ORDER BY ps."stage_order_index"
+          ) AS "previous_template_stage_id"
+        FROM pipeline_stages ps
+      ),
+      /* ===================================================================
+         CTE 4: raw_stage_entries
+         Collects all (candidate, stage) pairs from three sources:
+           Branch 1: Stages candidates were advanced TO (new_template_stage_id)
+           Branch 2: Stages candidates were advanced FROM (previous_template_stage_id)
+           Branch 3: Candidates with no advance history (current stage fallback)
+         COUNT(DISTINCT) in stage_entry_counts handles deduplication.
+         =================================================================== */
+      raw_stage_entries AS (
+        /* Stages candidates were advanced TO */
+        SELECT
+          cb."candidate_application_id",
+          cb."requisition_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month",
+          "activity_log"."new_template_stage_id" AS "template_stage_id"
+        FROM "activity_log"
+        JOIN candidate_base cb
+          ON cb."candidate_application_id" = "activity_log"."candidate_application_id"
+        WHERE "activity_log"."user_action" = 'ADVANCE_CANDIDATE'
+          AND "activity_log"."new_template_stage_id" IS NOT NULL
+          AND "activity_log"."is_deleted" IS NOT TRUE
+
+        UNION ALL
+
+        /* Stages candidates were advanced FROM */
+        SELECT
+          cb."candidate_application_id",
+          cb."requisition_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month",
+          "activity_log"."previous_template_stage_id" AS "template_stage_id"
+        FROM "activity_log"
+        JOIN candidate_base cb
+          ON cb."candidate_application_id" = "activity_log"."candidate_application_id"
+        WHERE "activity_log"."user_action" = 'ADVANCE_CANDIDATE'
+          AND "activity_log"."previous_template_stage_id" IS NOT NULL
+          AND "activity_log"."is_deleted" IS NOT TRUE
+
+        UNION ALL
+
+        /* Candidates with no advance history — current stage */
+        SELECT
+          cb."candidate_application_id",
+          cb."requisition_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month",
+          cb."current_template_stage_id" AS "template_stage_id"
+        FROM candidate_base cb
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM "activity_log" al
+          WHERE al."candidate_application_id" = cb."candidate_application_id"
+            AND al."user_action" = 'ADVANCE_CANDIDATE'
+            AND al."is_deleted" IS NOT TRUE
+        )
+      ),
+      /* ===================================================================
+         CTE 5: stage_entry_counts
+         Distinct candidate count per stage per requisition. The JOIN to
+         pipeline_stages filters out stages not in the candidate's pipeline.
+         =================================================================== */
+      stage_entry_counts AS (
+        SELECT
+          rse."requisition_id",
+          rse."job_name",
+          rse."template_pipeline_id",
+          rse."report_month",
+          rse."template_stage_id",
+          COUNT(DISTINCT rse."candidate_application_id") AS "entry_count"
+        FROM raw_stage_entries rse
+        JOIN pipeline_stages ps
+          ON ps."template_stage_id" = rse."template_stage_id"
+          AND ps."template_pipeline_id" = rse."template_pipeline_id"
+        GROUP BY
+          rse."requisition_id",
+          rse."job_name",
+          rse."template_pipeline_id",
+          rse."report_month",
+          rse."template_stage_id"
+      ),
+      /* ===================================================================
+         CTE 6: requisition_totals
+         Total distinct candidates per requisition. Used as the denominator
+         for cumulative passthrough rates.
+         =================================================================== */
+      requisition_totals AS (
+        SELECT
+          cb."requisition_id",
+          cb."company_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month",
+          COUNT(DISTINCT cb."candidate_application_id") AS "total_candidates"
+        FROM candidate_base cb
+        GROUP BY
+          cb."requisition_id",
+          cb."company_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month"
+      ),
+      /* ===================================================================
+         CTE 7: direct_transition_counts
+         Counts ADVANCE_CANDIDATE events between adjacent stages only.
+         The JOIN to stage_sequence ensures previous_template_stage_id
+         matches the pipeline's actual predecessor for the target stage,
+         so skips (A→C) are excluded — only direct A→B transitions count.
+         =================================================================== */
+      direct_transition_counts AS (
+        SELECT
+          cb."requisition_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month",
+          ss."template_stage_id",
+          COUNT(DISTINCT "activity_log"."candidate_application_id") AS "transition_count"
+        FROM "activity_log"
+        JOIN candidate_base cb
+          ON cb."candidate_application_id" = "activity_log"."candidate_application_id"
+        JOIN stage_sequence ss
+          ON ss."template_pipeline_id" = cb."template_pipeline_id"
+          AND ss."template_stage_id" = "activity_log"."new_template_stage_id"
+          AND ss."previous_template_stage_id" = "activity_log"."previous_template_stage_id"
+        WHERE "activity_log"."user_action" = 'ADVANCE_CANDIDATE'
+          AND "activity_log"."is_deleted" IS NOT TRUE
+          AND "activity_log"."previous_template_stage_id" IS NOT NULL
+          AND "activity_log"."new_template_stage_id" IS NOT NULL
+        GROUP BY
+          cb."requisition_id",
+          cb."job_name",
+          cb."template_pipeline_id",
+          cb."report_month",
+          ss."template_stage_id"
+      )
+      /* ===================================================================
+         Final SELECT
+         Joins requisition_totals × stage_sequence (all stages per req)
+         with entry counts, previous-stage entry counts, and transition
+         counts. Computes stage_to_stage_rate_pct and cumulative_rate_pct.
+         =================================================================== */
+      SELECT
+        rt."requisition_id",
+        rt."company_id",
+        rt."job_name",
+        rt."report_month",
+        ss."template_stage_id",
+        ss."stage_name",
+        ss."stage_rank_order",
+        ss."milestone_name",
+        ss."milestone_rank_order",
+        CASE
+          WHEN ss."stage_name" IS NULL OR TRIM(ss."stage_name") = ''
+            THEN INITCAP(REPLACE(ss."milestone_name", '_', ' '))
+          WHEN UPPER(REPLACE(ss."stage_name", '_', ' ')) = UPPER(REPLACE(ss."milestone_name", '_', ' '))
+            THEN INITCAP(REPLACE(ss."stage_name", '_', ' '))
+          ELSE CONCAT(
+            INITCAP(REPLACE(ss."milestone_name", '_', ' ')),
+            ' > ',
+            INITCAP(REPLACE(ss."stage_name", '_', ' '))
+          )
+        END AS "stage_label",
+        COALESCE(sec."entry_count", 0) AS "entry_count",
+        CASE
+          WHEN ss."previous_template_stage_id" IS NULL THEN NULL
+          ELSE COALESCE(sec_prev."entry_count", 0)
+        END AS "previous_stage_entry_count",
+        rt."total_candidates",
+        CASE
+          WHEN ss."previous_template_stage_id" IS NULL
+            THEN COALESCE(sec."entry_count", 0)
+          ELSE COALESCE(dt."transition_count", 0)
+        END AS "progressed_count",
+        CASE
+          WHEN ss."previous_template_stage_id" IS NULL
+            OR COALESCE(sec_prev."entry_count", 0) = 0
+            THEN NULL
+          ELSE ROUND(
+            (COALESCE(dt."transition_count", 0)::numeric /
+            sec_prev."entry_count"::numeric) * 100,
+            2
+          )
+        END AS "stage_to_stage_rate_pct",
+        CASE
+          WHEN rt."total_candidates" = 0 THEN NULL
+          ELSE ROUND(
+            (COALESCE(sec."entry_count", 0)::numeric /
+            rt."total_candidates"::numeric) * 100,
+            2
+          )
+        END AS "cumulative_rate_pct"
+      FROM requisition_totals rt
+      JOIN stage_sequence ss
+        ON ss."template_pipeline_id" = rt."template_pipeline_id"
+      LEFT JOIN stage_entry_counts sec
+        ON sec."requisition_id" = rt."requisition_id"
+        AND sec."template_pipeline_id" = rt."template_pipeline_id"
+        AND sec."report_month" = rt."report_month"
+        AND sec."template_stage_id" = ss."template_stage_id"
+      LEFT JOIN stage_entry_counts sec_prev
+        ON sec_prev."requisition_id" = rt."requisition_id"
+        AND sec_prev."template_pipeline_id" = rt."template_pipeline_id"
+        AND sec_prev."report_month" = rt."report_month"
+        AND sec_prev."template_stage_id" = ss."previous_template_stage_id"
+      LEFT JOIN direct_transition_counts dt
+        ON dt."requisition_id" = rt."requisition_id"
+        AND dt."template_pipeline_id" = rt."template_pipeline_id"
+        AND dt."report_month" = rt."report_month"
+        AND dt."template_stage_id" = ss."template_stage_id"
+
+    joins:
+      - name: company
+        sql: '{CUBE}."company_id" = {company}."id"'
+        relationship: many_to_one
+
+    dimensions:
+      - name: pk
+        title: 'Primary Key'
+        sql: "CONCAT({CUBE}.\"requisition_id\", '_', {CUBE}.\"template_stage_id\", '_', {CUBE}.\"report_month\")"
+        type: string
+        primary_key: true
+        public: false
+
+      - name: reportmonth
+        title: 'Report Month'
+        sql: 'report_month'
+        type: time
+
+      - name: companyid
+        title: 'Company ID'
+        sql: 'company_id'
+        type: number
+
+      - name: requisitionid
+        title: 'Requisition ID'
+        sql: 'requisition_id'
+        type: number
+
+      - name: jobname
+        title: 'Job Name'
+        sql: 'job_name'
+        type: string
+
+      - name: joblabel
+        title: 'Job Label'
+        sql: "CONCAT({CUBE}.\"job_name\", ' (Req ID: ', {CUBE}.\"requisition_id\", ')')"
+        type: string
+
+      - name: templatestageid
+        title: 'Template Stage ID'
+        sql: 'template_stage_id'
+        type: number
+
+      - name: stagerankorder
+        title: 'Stage Order'
+        sql: 'stage_rank_order'
+        type: number
+
+      - name: stagename
+        title: 'Stage Name'
+        sql: 'stage_name'
+        type: string
+
+      - name: milestonename
+        title: 'Milestone Name'
+        sql: 'milestone_name'
+        type: string
+
+      - name: milestonerankorder
+        title: 'Milestone Order'
+        sql: 'milestone_rank_order'
+        type: number
+
+      - name: stagelabel
+        title: 'Stage Label (Milestone > Stage)'
+        sql: 'stage_label'
+        type: string
+
+    measures:
+      - name: rows
+        type: count
+
+      - name: enteredcount
+        title: 'Entered Count'
+        sql: SUM({CUBE}."entry_count")
+        type: number
+
+      - name: progressedcount
+        title: 'Progressed From Previous Stage Count'
+        sql: SUM({CUBE}."progressed_count")
+        type: number
+
+      - name: prevstageentrycount
+        title: 'Previous Stage Entry Count'
+        sql: SUM({CUBE}."previous_stage_entry_count")
+        type: number
+
+      - name: totalcandidates
+        title: 'Total Pipeline Candidates'
+        sql: SUM({CUBE}."total_candidates")
+        type: number
+
+      - name: stagetostageratepct
+        title: 'Stage-to-Stage Rate %'
+        sql: >
+          CASE
+            WHEN NULLIF(SUM({CUBE}."previous_stage_entry_count"), 0) IS NULL
+              THEN NULL
+            ELSE ROUND(
+              (SUM({CUBE}."progressed_count")::numeric /
+              NULLIF(SUM({CUBE}."previous_stage_entry_count"), 0)::numeric) * 100,
+              2
+            )
+          END
+        type: number
+
+      - name: cumulativeratepct
+        title: 'Cumulative Rate %'
+        sql: >
+          CASE
+            WHEN NULLIF(SUM({CUBE}."total_candidates"), 0) IS NULL
+              THEN NULL
+            ELSE ROUND(
+              (SUM({CUBE}."entry_count")::numeric /
+              NULLIF(SUM({CUBE}."total_candidates"), 0)::numeric) * 100,
+              2
+            )
+          END
+        type: number

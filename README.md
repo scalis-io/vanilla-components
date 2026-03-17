@@ -1,5 +1,6 @@
 # Embeddable management repo tailored for Scalis requirements
 
+> **Origin:** This code was migrated from the standalone [`vanilla-components`](https://github.com/scalis-io/vanilla-components) repository (now archived) as part of the analytics consolidation into `scalis-io`. See [S26-10842](https://linear.app/scalis/issue/S26-10842) for details.
 
 ### Instructions
 

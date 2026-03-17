@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import cube, { Query } from '@cubejs-client/core'
+import cube from '@cubejs-client/core'
 
 const CUBE_API_URL = 'http://localhost:4000/cubejs-api/v1'
 const token = 'token'

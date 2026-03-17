@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 /*
- * Update API_KEY and EMBEDDABLE_ID below with your own 
+ * Update API_KEY and EMBEDDABLE_ID below with your own
  * (find these by clicking "Publish" on your Embeddable dashboard)
  */
 const API_KEY = '...';

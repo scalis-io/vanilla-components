@@ -9,5 +9,3 @@ embeddable-entry-point.jsx
 # cube
 .env
 .cubestore
-
-src/model

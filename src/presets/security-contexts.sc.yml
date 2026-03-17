@@ -2,25 +2,48 @@
 # This context is only accessible within Cube models and enables row-level security. Note
 # that this file is only used by the builder.
 # See https://docs.embeddable.com/data-modeling/row-level-security
-- name: staging (no security context)
-  environment: stg
-  securityContext:
-    empty: true
+
+# Development
 
 - name: development (no security context)
   environment: dev
   securityContext:
     empty: true
 
-- name: production (no security context)
-  environment: prod
+- name: development (companyId=85, surveyFormQuestionTemplateId=14)
+  environment: dev
   securityContext:
-    empty: true
+    companyId: 85
+    surveyFormQuestionTemplateId: 14
+    # respondedAtFrom: '2025-11-12T02:59:59.999Z'
+    # respondedAtTo: '2025-11-19T02:59:59.999Z'
+    # companyUserIds: [80]
+    # candidateProfileIds: [1, 2, 3]
+    # candidateApplicationIds: [1, 2, 3]
 
 - name: development (companyId=95)
   environment: dev
   securityContext:
     companyId: 95
+
+- name: development (companyId=127)
+  environment: dev
+  securityContext:
+    companyId: 127
+
+# Staging
+
+- name: staging (no security context)
+  environment: stg
+  securityContext:
+    empty: true
+
+# Production
+
+- name: production (no security context)
+  environment: prod
+  securityContext:
+    empty: true
 
 - name: production (companyId=4)
   environment: prod
@@ -37,13 +60,12 @@
   securityContext:
     companyId: 94
 
-- name: development (companyId=85, surveyFormQuestionTemplateId=14)
-  environment: dev
+- name: production (companyId=117)
+  environment: prod
   securityContext:
-    companyId: 85
-    surveyFormQuestionTemplateId: 14
-    # respondedAtFrom: '2025-11-12T02:59:59.999Z'
-    # respondedAtTo: '2025-11-19T02:59:59.999Z'
-    # companyUserIds: [80]
-    # candidateProfileIds: [1, 2, 3]
-    # candidateApplicationIds: [1, 2, 3]
+    companyId: 117
+
+- name: production (companyId=33)
+  environment: prod
+  securityContext:
+    companyId: 33

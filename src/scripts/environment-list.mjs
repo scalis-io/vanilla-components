@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { loadEnvConfig } from './utils/envLoader.mjs';
 import process from 'process';
 

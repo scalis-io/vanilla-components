@@ -1,5 +1,5 @@
-import { defineConfig } from '@embeddable.com/sdk-core';
-import react from '@embeddable.com/sdk-react';
+import react from '@embeddable.com/sdk-react'
+import { defineConfig } from '@embeddable.com/sdk-core'
 
 export default defineConfig({
   plugins: [react],
@@ -26,4 +26,4 @@ export default defineConfig({
   // audienceUrl: 'https://api.dev.embeddable.com/',
   // authDomain: 'embeddable-dev.eu.auth0.com',
   // authClientId: 'xOKco5ztFCpWn54bJbFkAcT8mV4LLcpG',
-});
+})

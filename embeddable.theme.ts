@@ -1,7 +1,7 @@
-import { defineTheme } from '@embeddable.com/core';
-import { Theme } from '@embeddable.com/vanilla-components';
+import { defineTheme } from '@embeddable.com/core'
+import { Theme } from '@embeddable.com/vanilla-components'
 
-const fontFamily = 'Inter';
+const fontFamily = 'Inter'
 const textNeutralPrimary = '#1F2124'
 const iconNeutral20 = '#1F2124'
 
@@ -81,7 +81,7 @@ const themeProvider = (clientContext: any, parentTheme: Theme): Theme => {
         colors: {
           normal: '#C3CFDC', // Input border
           heavy: '#1F2124', // Round border around date picker month chevrons
-        }
+        },
       },
       datepicker: {
         backgrounds: {
@@ -91,7 +91,7 @@ const themeProvider = (clientContext: any, parentTheme: Theme): Theme => {
             rangeEndDate: '#0021F8',
             rangeMiddle: '#E7F3FF',
             rangeStart: '#0021F8',
-          }
+          },
         },
         radiuses: {
           button: '8px',
@@ -144,26 +144,25 @@ const themeProvider = (clientContext: any, parentTheme: Theme): Theme => {
       strokeNormal: iconNeutral20, // Calendar icon | Download icon | Dropdown checkbox
     },
   })
-  
+
   /*
    * This allows for switching between the default and custom theme in the
    * builder based on presets/client-contexts.cc.yml. You can remove this
    * code if you don't want to do theme switching.
    */
   if (clientContext?.theme === 'default') {
-    return scalisTheme;
+    return scalisTheme
   } else if (clientContext?.theme === 'embeddable') {
-    return parentTheme;
-  } 
+    return parentTheme
+  }
 
-  const { theme } = clientContext || {};
-  
+  const { theme } = clientContext || {}
 
   if (!theme || typeof theme !== 'object') {
-    return scalisTheme;
+    return scalisTheme
   }
-  
-	return defineTheme(scalisTheme, theme);
-};
 
-export default themeProvider;
+  return defineTheme(scalisTheme, theme)
+}
+
+export default themeProvider
