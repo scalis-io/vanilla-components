@@ -1,0 +1,51 @@
+cubes:
+  - name: custom_requisition_options
+    description: 'Custom report: Requisition dropdown options with disambiguated job labels and applicant counts'
+    sql: >
+      SELECT
+        "requisition"."id" AS "requisition_id",
+        "requisition"."job_name" AS "job_name",
+        CONCAT("requisition"."job_name", ' (Req ID: ', "requisition"."ext_requisition_id", ')') AS "job_label",
+        "requisition"."created_at" AS "created_at",
+        "candidate_application"."id" AS "candidate_application_id",
+        "requisition"."company_id" AS "company_id"
+      FROM "requisition"
+      JOIN "job_listing"
+        ON "requisition"."id" = "job_listing"."job_requisition_id"
+        AND "job_listing"."is_deleted" IS NOT TRUE
+      LEFT JOIN "candidate_application"
+        ON "job_listing"."id" = "candidate_application"."job_listing_id"
+        AND "candidate_application"."deleted" IS NULL
+      WHERE "requisition"."is_deleted" IS NOT TRUE
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "requisition"."company_id" = '{ COMPILE_CONTEXT.securityContext.companyId }'
+        {% endif %}
+
+    dimensions:
+      - name: pk
+        title: 'Primary Key'
+        sql: 'requisition_id'
+        type: number
+        primary_key: true
+        public: false
+
+      - name: joblabel
+        title: 'Job Label'
+        sql: 'job_label'
+        type: string
+
+      - name: createdat
+        title: 'Created At'
+        sql: 'created_at'
+        type: time
+
+      - name: companyid
+        title: 'Company ID'
+        sql: 'company_id'
+        type: number
+
+    measures:
+      - name: totalapplicants
+        title: 'Total Applicants'
+        type: count_distinct
+        sql: '{CUBE}."candidate_application_id"'

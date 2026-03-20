@@ -1,0 +1,77 @@
+cubes:
+  - name: custom_candidate_sources
+    description: 'Custom report: Candidate sources count by source name or category, filterable by job label and date range'
+    sql: >
+      SELECT
+        "source_name"."name" AS "source_name",
+        "source_category"."source_category_name" AS "source_category_name",
+        "requisition"."job_name" AS "job_name",
+        "requisition"."id" AS "requisition_id",
+        CONCAT("requisition"."job_name", ' (Req ID: ', "requisition"."ext_requisition_id", ')') AS "job_label",
+        COALESCE(
+          "candidate_application"."applied_at",
+          "candidate_application"."created_at"
+        ) AS "applied_at",
+        "candidate_source"."id" AS "candidate_source_id",
+        "requisition"."company_id" AS "company_id"
+      FROM "candidate_source"
+      JOIN "source_name"
+        ON "candidate_source"."source_name_id" = "source_name"."id"
+      JOIN "source_category"
+        ON "source_name"."source_category_id" = "source_category"."id"
+      JOIN "candidate_application"
+        ON "candidate_source"."candidate_application_id" = "candidate_application"."id"
+        AND "candidate_application"."deleted" IS NULL
+      JOIN "job_listing"
+        ON "candidate_application"."job_listing_id" = "job_listing"."id"
+        AND "job_listing"."is_deleted" IS NOT TRUE
+      JOIN "requisition"
+        ON "job_listing"."job_requisition_id" = "requisition"."id"
+        AND "requisition"."is_deleted" IS NOT TRUE
+      WHERE "candidate_source"."candidate_application_id" IS NOT NULL
+        {% if COMPILE_CONTEXT.securityContext.companyId %}
+          AND "requisition"."company_id" = '{ COMPILE_CONTEXT.securityContext.companyId }'
+        {% endif %}
+
+    dimensions:
+      - name: pk
+        title: 'Primary Key'
+        sql: 'candidate_source_id'
+        type: number
+        primary_key: true
+        public: false
+
+      - name: sourcename
+        title: 'Source Name'
+        sql: 'source_name'
+        type: string
+
+      - name: sourcecategoryname
+        title: 'Source Category'
+        sql: 'source_category_name'
+        type: string
+
+      - name: jobname
+        title: 'Job Name'
+        sql: 'job_name'
+        type: string
+
+      - name: joblabel
+        title: 'Job Label'
+        sql: 'job_label'
+        type: string
+
+      - name: appliedat
+        title: 'Applied At'
+        sql: 'applied_at'
+        type: time
+
+      - name: companyid
+        title: 'Company ID'
+        sql: 'company_id'
+        type: number
+
+    measures:
+      - name: sources
+        title: 'Candidate Sources'
+        type: count

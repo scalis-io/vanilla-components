@@ -69,3 +69,8 @@
   environment: prod
   securityContext:
     companyId: 33
+
+- name: production (companyId=114)
+  environment: prod
+  securityContext:
+    companyId: 114
